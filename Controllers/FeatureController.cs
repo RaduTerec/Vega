@@ -10,8 +10,8 @@ namespace Vega.Controllers
     [Route("[controller]")]
     public class FeatureController : ControllerBase
     {
-        private VegaDbContext _vegaDbContext;
-        private ILogger<FeatureController> _logger;
+        private readonly VegaDbContext _vegaDbContext;
+        private readonly ILogger<FeatureController> _logger;
   
         public FeatureController(ILogger<FeatureController> logger, VegaDbContext context)  
         {

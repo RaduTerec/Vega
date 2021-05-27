@@ -23,13 +23,15 @@ namespace Vega
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             services.AddDbContextPool<VegaDbContext>(options => options
                 .UseMySql(
                     Configuration.GetConnectionString("VegaConnectionString"),
                     ServerVersion.AutoDetect(Configuration.GetConnectionString("VegaConnectionString"))
             ));
 
-            services.AddControllersWithViews();
+            services.AddControllers();
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {

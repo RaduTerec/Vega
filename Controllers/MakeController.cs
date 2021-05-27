@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Vega.Models;
+using Vega.Models.DataTransferObjects;
 
 namespace Vega.Controllers
 {
@@ -10,19 +12,24 @@ namespace Vega.Controllers
     [Route("[controller]")]
     public class MakeController : ControllerBase
     {
-        private VegaDbContext _vegaDbContext;
-        private ILogger<MakeController> _logger;
+        private readonly VegaDbContext _vegaDbContext;
+        private readonly ILogger<MakeController> _logger;
+
+        private readonly IMapper _mapper;
   
-        public MakeController(ILogger<MakeController> logger, VegaDbContext context)  
+        public MakeController(ILogger<MakeController> logger, VegaDbContext context, IMapper mapper)  
         {
             _logger = logger;
-            _vegaDbContext = context;  
+            _vegaDbContext = context;
+            _mapper = mapper;
         }  
   
-        [HttpGet("api/makes")]  
-        public IEnumerable<Make> GetMakes()  
-        {  
-            return (_vegaDbContext.Makes.ToList());  
+        [HttpGet]  
+        public IEnumerable<MakeDTO> GetMakes()  
+        {
+            var makes = _vegaDbContext.Makes.ToList();
+
+            return _mapper.Map<IEnumerable<MakeDTO>>(makes);  
         }  
     }
 }
