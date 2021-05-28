@@ -6,9 +6,9 @@ namespace Vega.Models.DataTransferObjects
     public class MakeDTO
     {
         public long Id { get; set; }
-        
+
         public string Name { get; set; }
-        
+
         public ICollection<ModelDTO> Models { get; }
 
         public MakeDTO()
