@@ -10,6 +10,7 @@ namespace Vega.Mappings
         {
             CreateMap<Make, MakeDTO>();
             CreateMap<Model, ModelDTO>();
+            CreateMap<Feature, FeatureDTO>();
         }
     }
 }

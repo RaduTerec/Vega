@@ -1,4 +1,6 @@
-﻿namespace Vega.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Vega.Models
 {
     /// <summary>
     /// Car feature like airbag, ABS, etc
@@ -7,6 +9,8 @@
     {
         public long Id { get; set; }
 
+        [Required]
+        [StringLength(255)]
         public string Name { get; set; }
     }
 }

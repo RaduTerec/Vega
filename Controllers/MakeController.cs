@@ -15,7 +15,6 @@ namespace Vega.Controllers
     {
         private readonly VegaDbContext _vegaDbContext;
         private readonly ILogger<MakeController> _logger;
-
         private readonly IMapper _mapper;
 
         public MakeController(ILogger<MakeController> logger, VegaDbContext context, IMapper mapper)
