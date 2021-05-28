@@ -2,17 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 @Injectable()
-export class FeatureService {
-  public features: Feature[];
+
+export class VehicleService {
 
   constructor(private http: HttpClient) { }
 
-  getFeatures() {
-    return this.http.get<Feature[]>('feature');
+  getMakes() {
+    return this.http.get<any>('api/make');
   }
-}
 
-interface Feature {
-  id: number;
-  name: string;
+  getFeatures() {
+    return this.http.get<any>('api/feature');
+  }
 }

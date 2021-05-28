@@ -10,7 +10,7 @@ using Vega.Models.DataTransferObjects;
 namespace Vega.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class FeatureController : ControllerBase
     {
         private readonly VegaDbContext _vegaDbContext;
