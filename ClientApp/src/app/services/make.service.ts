@@ -14,10 +14,12 @@ export class MakeService {
 }
 
 interface Make {
+  id: number;
   name: string;
   models: Model[];
 }
 
 interface Model {
+  id: number;
   name: string;
 }
