@@ -9,7 +9,7 @@ using Vega.Models;
 namespace Vega.Migrations
 {
     [DbContext(typeof(VegaDbContext))]
-    [Migration("20210602204404_CreateVehicle")]
+    [Migration("20210603200153_CreateVehicle")]
     partial class CreateVehicle
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,6 +18,21 @@ namespace Vega.Migrations
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 64)
                 .HasAnnotation("ProductVersion", "5.0.6");
+
+            modelBuilder.Entity("FeatureVehicle", b =>
+                {
+                    b.Property<long>("FeaturesId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("VehiclesId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("FeaturesId", "VehiclesId");
+
+                    b.HasIndex("VehiclesId");
+
+                    b.ToTable("FeatureVehicle");
+                });
 
             modelBuilder.Entity("Vega.Models.Feature", b =>
                 {
@@ -30,12 +45,7 @@ namespace Vega.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
-                    b.Property<long?>("VehicleId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("VehicleId");
 
                     b.ToTable("Features");
                 });
@@ -83,6 +93,10 @@ namespace Vega.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
+                    b.Property<string>("ContactEmail")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
                     b.Property<string>("ContactName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -93,10 +107,13 @@ namespace Vega.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
+                    b.Property<bool>("IsRegistered")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime>("LastUpdate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<long?>("ModelId")
+                    b.Property<long>("ModelId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -106,11 +123,19 @@ namespace Vega.Migrations
                     b.ToTable("Vehicles");
                 });
 
-            modelBuilder.Entity("Vega.Models.Feature", b =>
+            modelBuilder.Entity("FeatureVehicle", b =>
                 {
+                    b.HasOne("Vega.Models.Feature", null)
+                        .WithMany()
+                        .HasForeignKey("FeaturesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Vega.Models.Vehicle", null)
-                        .WithMany("Features")
-                        .HasForeignKey("VehicleId");
+                        .WithMany()
+                        .HasForeignKey("VehiclesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Vega.Models.Model", b =>
@@ -128,7 +153,9 @@ namespace Vega.Migrations
                 {
                     b.HasOne("Vega.Models.Model", "Model")
                         .WithMany()
-                        .HasForeignKey("ModelId");
+                        .HasForeignKey("ModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Model");
                 });
@@ -136,11 +163,6 @@ namespace Vega.Migrations
             modelBuilder.Entity("Vega.Models.Make", b =>
                 {
                     b.Navigation("Models");
-                });
-
-            modelBuilder.Entity("Vega.Models.Vehicle", b =>
-                {
-                    b.Navigation("Features");
                 });
 #pragma warning restore 612, 618
         }
