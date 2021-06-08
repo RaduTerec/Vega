@@ -13,14 +13,21 @@ namespace Vega.Mappings
             CreateMap<Make, MakeDTO>();
             CreateMap<Model, ModelDTO>();
             CreateMap<Feature, FeatureDTO>();
-            CreateMap<Vehicle, VehicleDTO>();
 
-            // API Resource to Domain
-            CreateMap<VehicleDTO, Vehicle>()
-            .ForMember(v => v.ContactName, opt => opt.MapFrom(vDto => vDto.Contact.Name))
-            .ForMember(v => v.ContactEmail, opt => opt.MapFrom(vDto => vDto.Contact.Email))
-            .ForMember(v => v.ContactPhone, opt => opt.MapFrom(vDto => vDto.Contact.Phone))
-            .ForMember(v => v.Features, opt => opt.MapFrom(vDto => vDto.Features.Select(id => new Feature {Id = id})));
+            // API to Domain
+            // TODO: this mapping is temporary.
+            CreateMap<long, Feature>()
+                .ForMember(f => f.Id, opt => opt.MapFrom(dest => dest));
+
+            // Domain to API and API to Domain
+            CreateMap<Vehicle, VehicleDTO>()
+            .ForMember(vDto => vDto.Contact, opt => opt.MapFrom(v => new ContactDTO{
+                Name = v.ContactName,
+                Email = v.ContactEmail,
+                Phone = v.ContactPhone
+            }))
+            .ForMember(vDto => vDto.Features, opt => opt.MapFrom(v => v.Features.Select(f => f.Id).ToArray()))
+            .ReverseMap();
         }
     }
 }

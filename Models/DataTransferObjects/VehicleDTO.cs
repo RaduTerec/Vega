@@ -9,11 +9,11 @@ namespace Vega.Models.DataTransferObjects
         public long ModelId { get; set; }
         public bool IsRegistered { get; set; }
         public ContactDTO Contact { get; set; }
-        public ICollection<int> Features { get; }
+        public ICollection<long> Features { get; set; }
 
         public VehicleDTO()
         {
-            Features = new Collection<int>();
+            Features = new Collection<long>();
         }
     }
 }

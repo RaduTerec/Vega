@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -50,11 +51,23 @@ namespace Vega.Controllers
                 return BadRequest("Id cannot be set for the insert action");
             }
 
-            var vehicle = await _vegaDbContext.Vehicles.AddAsync(_mapper.Map<Vehicle>(vehicleDTO));
+            var vehicle = _mapper.Map<Vehicle>(vehicleDTO);
 
-            if (vehicle != default)
+            // TODO: Delete this ugly code after rewriting the reverse mapping
+            vehicle.Features.Clear();
+            var features = await _vegaDbContext.Features.Where(f => vehicleDTO.Features.Contains(f.Id)).ToListAsync();
+            foreach (var feature in features)
             {
-                return CreatedAtRoute("FirstAsync", new { id = vehicle }, vehicleDTO);
+                vehicle.Features.Add(feature);
+            }
+
+            await _vegaDbContext.Vehicles.AddAsync(vehicle);
+            await _vegaDbContext.SaveChangesAsync();
+            var result = _mapper.Map<VehicleDTO>(vehicle);
+
+            if (result != default)
+            {
+                return Ok(result);
             }
 
             return BadRequest("Vehicle could not be created");
