@@ -42,7 +42,7 @@ namespace Vega.Controllers
             return NotFound($"Vehicle with Id {Id} was not found.");
         }
 
-        [HttpPut]
+        [HttpPost]
         public async Task<ActionResult<VehicleDTO>> Insert(VehicleDTO vehicleDTO)
         {
             if (vehicleDTO.Id != 0)
@@ -69,7 +69,7 @@ namespace Vega.Controllers
             }
 
             var vehicleToUpdate = await _vegaDbContext.Vehicles.Include(f => f.Features).FirstAsync(v => v.Id.Equals(vehicleDTO.Id));
-            vehicleToUpdate.ContactName = vehicleDTO.ContactName;
+            vehicleToUpdate.ContactName = vehicleDTO.Contact.Name;
 
             _vegaDbContext.Update(_mapper.Map<Vehicle>(vehicleDTO));
 
