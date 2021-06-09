@@ -53,8 +53,6 @@ namespace Vega.Controllers
 
             var vehicle = _mapper.Map<Vehicle>(vehicleDTO);
 
-            // TODO: Delete this ugly code after rewriting the reverse mapping
-            vehicle.Features.Clear();
             var features = await _vegaDbContext.Features.Where(f => vehicleDTO.Features.Contains(f.Id)).ToListAsync();
             foreach (var feature in features)
             {
