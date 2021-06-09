@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -52,6 +53,7 @@ namespace Vega.Controllers
             }
 
             var vehicle = _mapper.Map<Vehicle>(vehicleDTO);
+            vehicle.LastUpdate = DateTime.Now;
 
             var features = await _vegaDbContext.Features.Where(f => vehicleDTO.Features.Contains(f.Id)).ToListAsync();
             foreach (var feature in features)
@@ -60,46 +62,43 @@ namespace Vega.Controllers
             }
 
             await _vegaDbContext.Vehicles.AddAsync(vehicle);
-            await _vegaDbContext.SaveChangesAsync();
-            var result = _mapper.Map<VehicleDTO>(vehicle);
-
-            if (result != default)
-            {
-                return Ok(result);
-            }
-
-            return BadRequest("Vehicle could not be created");
-        }
-
-        [HttpPut]
-        public async Task<ActionResult<VehicleDTO>> Update(VehicleDTO vehicleDTO)
-        {
-            if (vehicleDTO.Id == 0)
-            {
-                return BadRequest("Id should be set for the update action");
-            }
-
-            var vehicleToUpdate = await _vegaDbContext.Vehicles.Include(f => f.Features).FirstAsync(v => v.Id.Equals(vehicleDTO.Id));
-            vehicleToUpdate.ContactName = vehicleDTO.Contact.Name;
-
-            _vegaDbContext.Update(_mapper.Map<Vehicle>(vehicleDTO));
-
-            int result;
+            
             try
             {
-                result = await _vegaDbContext.SaveChangesAsync();
+                await _vegaDbContext.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
                 return NotFound("SaveChanges fail.");
             }
 
-            if (result > 0)
+            var result = _mapper.Map<VehicleDTO>(vehicle);
+            return Ok(result);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<VehicleDTO>> Update(long id, VehicleDTO vehicleDTO)
+        {
+            if (id == 0)
             {
-                return NoContent();
+                return BadRequest("Id should be set for the update action");
             }
 
-            return NotFound("Could not update vehicle");
+            var vehicleToUpdate = await _vegaDbContext.Vehicles.Include(f => f.Features).FirstAsync(v => v.Id.Equals(id));
+            _mapper.Map(vehicleDTO, vehicleToUpdate);
+            vehicleToUpdate.LastUpdate = DateTime.Now;
+
+            try
+            {
+                await _vegaDbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return NotFound("SaveChanges fail.");
+            }
+
+            var result = _mapper.Map<VehicleDTO>(vehicleToUpdate);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]

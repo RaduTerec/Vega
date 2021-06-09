@@ -36,7 +36,6 @@ namespace Vega.Models
         public Vehicle()
         {
             Features = new Collection<Feature>();
-            LastUpdate = DateTime.Now;
         }
     }
 }
