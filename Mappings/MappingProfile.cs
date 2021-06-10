@@ -20,7 +20,7 @@ namespace Vega.Mappings
                     Email = v.ContactEmail,
                     Phone = v.ContactPhone
                 }))
-                .ForMember(vDto => vDto.Features, opt => opt.MapFrom(v => v.Features.Select(f => f.Id).ToArray()));
+                .ForMember(vDto => vDto.Features, opt => opt.MapFrom(v => v.Features.Select(f => f.FeatureId).ToArray()));
 
             // API to Domain
             CreateMap<VehicleDTO, Vehicle>()

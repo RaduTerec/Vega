@@ -17,21 +17,6 @@ namespace Vega.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64)
                 .HasAnnotation("ProductVersion", "5.0.6");
 
-            modelBuilder.Entity("FeatureVehicle", b =>
-                {
-                    b.Property<long>("FeaturesId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("VehiclesId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("FeaturesId", "VehiclesId");
-
-                    b.HasIndex("VehiclesId");
-
-                    b.ToTable("FeatureVehicle");
-                });
-
             modelBuilder.Entity("Vega.Models.Feature", b =>
                 {
                     b.Property<long>("Id")
@@ -168,7 +153,7 @@ namespace Vega.Migrations
                         .IsRequired();
 
                     b.HasOne("Vega.Models.Vehicle", "Vehicle")
-                        .WithMany()
+                        .WithMany("Features")
                         .HasForeignKey("VehicleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -181,6 +166,11 @@ namespace Vega.Migrations
             modelBuilder.Entity("Vega.Models.Make", b =>
                 {
                     b.Navigation("Models");
+                });
+
+            modelBuilder.Entity("Vega.Models.Vehicle", b =>
+                {
+                    b.Navigation("Features");
                 });
 #pragma warning restore 612, 618
         }

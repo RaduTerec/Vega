@@ -58,7 +58,7 @@ namespace Vega.Controllers
             var features = await _vegaDbContext.Features.Where(f => vehicleDTO.Features.Contains(f.Id)).ToListAsync();
             foreach (var feature in features)
             {
-                vehicle.Features.Add(feature);
+                vehicle.Features.Add(new VehicleFeature{FeatureId = feature.Id});
             }
 
             await _vegaDbContext.Vehicles.AddAsync(vehicle);
@@ -84,7 +84,7 @@ namespace Vega.Controllers
                 return BadRequest("Id should be set for the update action");
             }
 
-            var vehicleToUpdate = await _vegaDbContext.Vehicles.Include(f => f.Features).FirstAsync(v => v.Id.Equals(id));
+            var vehicleToUpdate = await _vegaDbContext.Vehicles.Include(f => f.Features).SingleOrDefaultAsync(v => v.Id.Equals(id));
             _mapper.Map(vehicleDTO, vehicleToUpdate);
             vehicleToUpdate.LastUpdate = DateTime.Now;
 
