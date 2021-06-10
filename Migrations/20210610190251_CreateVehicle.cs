@@ -18,7 +18,7 @@ namespace Vega.Migrations
                     IsRegistered = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     ContactName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    ContactEmail = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
+                    ContactEmail = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ContactPhone = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -37,24 +37,24 @@ namespace Vega.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "FeatureVehicle",
+                name: "VehicleFeatures",
                 columns: table => new
                 {
-                    FeaturesId = table.Column<long>(type: "bigint", nullable: false),
-                    VehiclesId = table.Column<long>(type: "bigint", nullable: false)
+                    VehicleId = table.Column<long>(type: "bigint", nullable: false),
+                    FeatureId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FeatureVehicle", x => new { x.FeaturesId, x.VehiclesId });
+                    table.PrimaryKey("PK_VehicleFeatures", x => new { x.VehicleId, x.FeatureId });
                     table.ForeignKey(
-                        name: "FK_FeatureVehicle_Features_FeaturesId",
-                        column: x => x.FeaturesId,
+                        name: "FK_VehicleFeatures_Features_FeatureId",
+                        column: x => x.FeatureId,
                         principalTable: "Features",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_FeatureVehicle_Vehicles_VehiclesId",
-                        column: x => x.VehiclesId,
+                        name: "FK_VehicleFeatures_Vehicles_VehicleId",
+                        column: x => x.VehicleId,
                         principalTable: "Vehicles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -62,9 +62,9 @@ namespace Vega.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FeatureVehicle_VehiclesId",
-                table: "FeatureVehicle",
-                column: "VehiclesId");
+                name: "IX_VehicleFeatures_FeatureId",
+                table: "VehicleFeatures",
+                column: "FeatureId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vehicles_ModelId",
@@ -75,7 +75,7 @@ namespace Vega.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "FeatureVehicle");
+                name: "VehicleFeatures");
 
             migrationBuilder.DropTable(
                 name: "Vehicles");
