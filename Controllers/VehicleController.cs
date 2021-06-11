@@ -55,7 +55,7 @@ namespace Vega.Controllers
             var vehicle = _mapper.Map<Vehicle>(vehicleDTO);
             vehicle.LastUpdate = DateTime.Now;
             await _vegaDbContext.Vehicles.AddAsync(vehicle);
-            
+
             try
             {
                 await _vegaDbContext.SaveChangesAsync();
@@ -72,12 +72,12 @@ namespace Vega.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<VehicleDTO>> Update(long id, VehicleDTO vehicleDTO)
         {
-            if (id == 0)
+            var vehicleToUpdate = await _vegaDbContext.Vehicles.Include(f => f.Features).SingleOrDefaultAsync(v => v.Id.Equals(id));
+            if (vehicleToUpdate == null)
             {
-                return BadRequest("Id should be set for the update action");
+                return BadRequest("Vehicle not found");
             }
 
-            var vehicleToUpdate = await _vegaDbContext.Vehicles.Include(f => f.Features).SingleOrDefaultAsync(v => v.Id.Equals(id));
             _mapper.Map(vehicleDTO, vehicleToUpdate);
             vehicleToUpdate.LastUpdate = DateTime.Now;
 
@@ -95,32 +95,26 @@ namespace Vega.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<VehicleDTO>> Delete(long Id)
+        public async Task<ActionResult<VehicleDTO>> Delete(long id)
         {
-            int result;
+            var vehicleToDelete = await _vegaDbContext.Vehicles.FindAsync(id);
+            if (vehicleToDelete == null)
+            {
+                return BadRequest("Vehicle not found");
+            }
+
+            _vegaDbContext.Vehicles.Remove(vehicleToDelete);
 
             try
             {
-                _vegaDbContext.Vehicles.Remove(
-                    new Vehicle
-                    {
-                        Id = Id
-                    }
-                );
-
-                result = await _vegaDbContext.SaveChangesAsync();
+                await _vegaDbContext.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                return NotFound("Delete fail");
+                return NotFound("SaveChanges fail");
             }
 
-            if (result > 0)
-            {
-                return NoContent();
-            }
-
-            return NotFound($"Could not delete vehicle");
+            return Ok(id);
         }
     }
 }
