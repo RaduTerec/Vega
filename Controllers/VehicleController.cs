@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -31,17 +30,17 @@ namespace Vega.Controllers
             return _mapper.Map<IEnumerable<VehicleDTO>>(vehicles);
         }
 
-        [HttpGet("{id}", Name = "FirstAsync")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<VehicleDTO>> Get(long Id)
         {
-            var vehicle = await _vegaDbContext.Vehicles.Include(f => f.Features).FirstAsync(f => f.Id.Equals(Id));
+            var vehicle = await _vegaDbContext.Vehicles.Include(f => f.Features).SingleOrDefaultAsync(f => f.Id.Equals(Id));
 
-            if (vehicle != default)
+            if (vehicle == default)
             {
-                return Ok(_mapper.Map<VehicleDTO>(vehicle));
+                return BadRequest("Vehicle not found");
             }
-
-            return NotFound($"Vehicle with Id {Id} was not found.");
+            
+            return Ok(_mapper.Map<VehicleDTO>(vehicle));
         }
 
         [HttpPost]
@@ -73,7 +72,7 @@ namespace Vega.Controllers
         public async Task<ActionResult<VehicleDTO>> Update(long id, VehicleDTO vehicleDTO)
         {
             var vehicleToUpdate = await _vegaDbContext.Vehicles.Include(f => f.Features).SingleOrDefaultAsync(v => v.Id.Equals(id));
-            if (vehicleToUpdate == null)
+            if (vehicleToUpdate == default)
             {
                 return BadRequest("Vehicle not found");
             }
@@ -95,10 +94,10 @@ namespace Vega.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<VehicleDTO>> Delete(long id)
+        public async Task<ActionResult<long>> Delete(long id)
         {
             var vehicleToDelete = await _vegaDbContext.Vehicles.FindAsync(id);
-            if (vehicleToDelete == null)
+            if (vehicleToDelete == default)
             {
                 return BadRequest("Vehicle not found");
             }
