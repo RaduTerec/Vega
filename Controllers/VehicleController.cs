@@ -54,13 +54,6 @@ namespace Vega.Controllers
 
             var vehicle = _mapper.Map<Vehicle>(vehicleDTO);
             vehicle.LastUpdate = DateTime.Now;
-
-            var features = await _vegaDbContext.Features.Where(f => vehicleDTO.Features.Contains(f.Id)).ToListAsync();
-            foreach (var feature in features)
-            {
-                vehicle.Features.Add(new VehicleFeature{FeatureId = feature.Id});
-            }
-
             await _vegaDbContext.Vehicles.AddAsync(vehicle);
             
             try
