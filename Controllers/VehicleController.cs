@@ -14,11 +14,13 @@ namespace Vega.Controllers
     [Route("api/[controller]")]
     public class VehicleController : ControllerBase
     {
-        public VegaDbContext _vegaDbContext { get; }
-        public IMapper _mapper { get; }
+        private readonly VegaDbContext _vegaDbContext;
+        public readonly IMapper _mapper;
+        public readonly IVehicleRepository _vehicleRepository;
 
-        public VehicleController(VegaDbContext context, IMapper mapper)
+        public VehicleController(VegaDbContext context, IMapper mapper, IVehicleRepository vehicleRepository)
         {
+            _vehicleRepository = vehicleRepository;
             _mapper = mapper;
             _vegaDbContext = context;
         }
@@ -26,36 +28,26 @@ namespace Vega.Controllers
         [HttpGet]
         public async Task<IEnumerable<VehicleDTO>> Get()
         {
-            var vehicles = await _vegaDbContext.Vehicles
-                .Include(v => v.Features)                
-                    .ThenInclude(vf => vf.Feature)
-                .Include(v => v.Model)
-                    .ThenInclude(m => m.Make)
-                .ToListAsync();
-
+            var vehicles = await _vehicleRepository.GetVehicles();
             return _mapper.Map<IEnumerable<VehicleDTO>>(vehicles);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<VehicleDTO>> Get(long Id)
+        public async Task<ActionResult<VehicleDTO>> Get(long id)
         {
-            var vehicle = await _vegaDbContext.Vehicles
-                .Include(v => v.Features)
-                    .ThenInclude(vf => vf.Feature)
-                .Include(v => v.Model)
-                    .ThenInclude(m => m.Make)
-                .SingleOrDefaultAsync(v => v.Id.Equals(Id));
+            var vehicle = await _vehicleRepository.GetVehicle(id);
 
             if (vehicle == default)
             {
                 return BadRequest("Vehicle not found");
             }
-            
-            return Ok(_mapper.Map<VehicleDTO>(vehicle));
+
+            var result = _mapper.Map<VehicleDTO>(vehicle);
+            return Ok(result);
         }
 
         [HttpPost]
-        public async Task<ActionResult<SaveVehicleDTO>> Insert(SaveVehicleDTO vehicleDTO)
+        public async Task<ActionResult<VehicleDTO>> Insert(SaveVehicleDTO vehicleDTO)
         {
             if (vehicleDTO.Id != 0)
             {
@@ -75,21 +67,22 @@ namespace Vega.Controllers
                 return NotFound("SaveChanges fail.");
             }
 
-            var result = _mapper.Map<SaveVehicleDTO>(vehicle);
+            vehicle = await _vehicleRepository.GetVehicle(vehicle.Id);
+            var result = _mapper.Map<VehicleDTO>(vehicle);
             return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<SaveVehicleDTO>> Update(long id, SaveVehicleDTO vehicleDTO)
+        public async Task<ActionResult<VehicleDTO>> Update(long id, SaveVehicleDTO vehicleDTO)
         {
-            var vehicleToUpdate = await _vegaDbContext.Vehicles.Include(v => v.Features).SingleOrDefaultAsync(v => v.Id.Equals(id));
-            if (vehicleToUpdate == default)
+            var vehicle = await _vegaDbContext.Vehicles.Include(v => v.Features).SingleOrDefaultAsync(v => v.Id.Equals(id));
+            if (vehicle == default)
             {
                 return BadRequest("Vehicle not found");
             }
 
-            _mapper.Map(vehicleDTO, vehicleToUpdate);
-            vehicleToUpdate.LastUpdate = DateTime.Now;
+            _mapper.Map(vehicleDTO, vehicle);
+            vehicle.LastUpdate = DateTime.Now;
 
             try
             {
@@ -100,20 +93,21 @@ namespace Vega.Controllers
                 return NotFound("SaveChanges fail.");
             }
 
-            var result = _mapper.Map<SaveVehicleDTO>(vehicleToUpdate);
+            vehicle = await _vehicleRepository.GetVehicle(vehicle.Id);
+            var result = _mapper.Map<VehicleDTO>(vehicle);
             return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<long>> Delete(long id)
         {
-            var vehicleToDelete = await _vegaDbContext.Vehicles.FindAsync(id);
-            if (vehicleToDelete == default)
+            var vehicle = await _vegaDbContext.Vehicles.FindAsync(id);
+            if (vehicle == default)
             {
                 return BadRequest("Vehicle not found");
             }
 
-            _vegaDbContext.Vehicles.Remove(vehicleToDelete);
+            _vegaDbContext.Vehicles.Remove(vehicle);
 
             try
             {
