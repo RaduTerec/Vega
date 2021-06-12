@@ -25,7 +25,12 @@ namespace Vega.Controllers
         [HttpGet]
         public async Task<IEnumerable<VehicleDTO>> Get()
         {
-            var vehicles = await _vegaDbContext.Vehicles.Include(f => f.Features).ToListAsync();
+            var vehicles = await _vegaDbContext.Vehicles
+                .Include(v => v.Features)                
+                    .ThenInclude(vf => vf.Feature)
+                .Include(v => v.Model)
+                    .ThenInclude(m => m.Make)
+                .ToListAsync();
 
             return _mapper.Map<IEnumerable<VehicleDTO>>(vehicles);
         }
@@ -33,7 +38,12 @@ namespace Vega.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<VehicleDTO>> Get(long Id)
         {
-            var vehicle = await _vegaDbContext.Vehicles.Include(f => f.Features).SingleOrDefaultAsync(f => f.Id.Equals(Id));
+            var vehicle = await _vegaDbContext.Vehicles
+                .Include(v => v.Features)
+                    .ThenInclude(vf => vf.Feature)
+                .Include(v => v.Model)
+                    .ThenInclude(m => m.Make)
+                .SingleOrDefaultAsync(v => v.Id.Equals(Id));
 
             if (vehicle == default)
             {
@@ -44,7 +54,7 @@ namespace Vega.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<VehicleDTO>> Insert(VehicleDTO vehicleDTO)
+        public async Task<ActionResult<SaveVehicleDTO>> Insert(SaveVehicleDTO vehicleDTO)
         {
             if (vehicleDTO.Id != 0)
             {
@@ -64,14 +74,14 @@ namespace Vega.Controllers
                 return NotFound("SaveChanges fail.");
             }
 
-            var result = _mapper.Map<VehicleDTO>(vehicle);
+            var result = _mapper.Map<SaveVehicleDTO>(vehicle);
             return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<VehicleDTO>> Update(long id, VehicleDTO vehicleDTO)
+        public async Task<ActionResult<SaveVehicleDTO>> Update(long id, SaveVehicleDTO vehicleDTO)
         {
-            var vehicleToUpdate = await _vegaDbContext.Vehicles.Include(f => f.Features).SingleOrDefaultAsync(v => v.Id.Equals(id));
+            var vehicleToUpdate = await _vegaDbContext.Vehicles.Include(v => v.Features).SingleOrDefaultAsync(v => v.Id.Equals(id));
             if (vehicleToUpdate == default)
             {
                 return BadRequest("Vehicle not found");
@@ -89,7 +99,7 @@ namespace Vega.Controllers
                 return NotFound("SaveChanges fail.");
             }
 
-            var result = _mapper.Map<VehicleDTO>(vehicleToUpdate);
+            var result = _mapper.Map<SaveVehicleDTO>(vehicleToUpdate);
             return Ok(result);
         }
 

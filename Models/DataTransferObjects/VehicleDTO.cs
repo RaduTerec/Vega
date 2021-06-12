@@ -1,22 +1,22 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
 
 namespace Vega.Models.DataTransferObjects
 {
     public class VehicleDTO
     {
         public long Id { get; set; }
-        public long ModelId { get; set; }
+        public ModelDTO Model { get; set; }
+        public MakeDTO Make { get; set; }
         public bool IsRegistered { get; set; }
-        
-        [Required]
         public ContactDTO Contact { get; set; }
-        public ICollection<long> Features { get; set; }
+        public ICollection<FeatureDTO> Features { get; set; }
+        public DateTime LastUpdate { get; set; }
 
         public VehicleDTO()
         {
-            Features = new Collection<long>();
+            Features = new Collection<FeatureDTO>();
         }
     }
 }
