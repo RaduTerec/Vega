@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Vega.Models;
 using Vega.Models.DataTransferObjects;
+using Vega.Persistence;
 
 namespace Vega.Controllers
 {
