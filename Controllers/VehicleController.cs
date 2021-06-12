@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Vega.Core;
 using Vega.Models;
 using Vega.Models.DataTransferObjects;
-using Vega.Persistence;
 
 namespace Vega.Controllers
 {
@@ -14,15 +13,15 @@ namespace Vega.Controllers
     [Route("api/[controller]")]
     public class VehicleController : ControllerBase
     {
-        private readonly VegaDbContext _vegaDbContext;
         public readonly IMapper _mapper;
         public readonly IVehicleRepository _vehicleRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public VehicleController(VegaDbContext context, IMapper mapper, IVehicleRepository vehicleRepository)
+        public VehicleController(IMapper mapper, IVehicleRepository vehicleRepository, IUnitOfWork unitOfWork)
         {
-            _vehicleRepository = vehicleRepository;
             _mapper = mapper;
-            _vegaDbContext = context;
+            _vehicleRepository = vehicleRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
@@ -57,15 +56,7 @@ namespace Vega.Controllers
             var vehicle = _mapper.Map<Vehicle>(vehicleDTO);
             vehicle.LastUpdate = DateTime.Now;
             await _vehicleRepository.AddAsync(vehicle);
-
-            try
-            {
-                await _vegaDbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                return NotFound("SaveChanges fail.");
-            }
+            await _unitOfWork.Complete();
 
             vehicle = await _vehicleRepository.GetWithRelated(vehicle.Id);
             var result = _mapper.Map<VehicleDTO>(vehicle);
@@ -83,15 +74,7 @@ namespace Vega.Controllers
 
             _mapper.Map(vehicleDTO, vehicle);
             vehicle.LastUpdate = DateTime.Now;
-
-            try
-            {
-                await _vegaDbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                return NotFound("SaveChanges fail.");
-            }
+            await _unitOfWork.Complete();
 
             vehicle = await _vehicleRepository.GetWithRelated(vehicle.Id);
             var result = _mapper.Map<VehicleDTO>(vehicle);
@@ -108,15 +91,7 @@ namespace Vega.Controllers
             }
 
             _vehicleRepository.Remove(vehicle);
-
-            try
-            {
-                await _vegaDbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                return NotFound("SaveChanges fail");
-            }
+            await _unitOfWork.Complete();
 
             return Ok(id);
         }

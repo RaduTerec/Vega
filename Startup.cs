@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using Vega.Core;
 using Vega.Persistence;
 
 namespace Vega
@@ -23,6 +24,7 @@ namespace Vega
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IVehicleRepository, VehicleRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
