@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Vega.Models.DataTransferObjects
+namespace Vega.Controllers.DataTransferObjects
 {
     public class VehicleDTO
     {

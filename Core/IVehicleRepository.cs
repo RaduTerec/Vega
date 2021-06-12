@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Vega.Models;
+using Vega.Core.Models;
 
 namespace Vega.Core
 {

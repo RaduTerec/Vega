@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Vega.Models.DataTransferObjects
+namespace Vega.Controllers.DataTransferObjects
 {
     public class ContactDTO
     {

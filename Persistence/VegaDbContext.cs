@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Vega.Models;
+using Vega.Core.Models;
 
 namespace Vega.Persistence
 {
@@ -16,9 +16,9 @@ namespace Vega.Persistence
         {
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<VehicleFeature>().HasKey(vf => 
+            modelBuilder.Entity<VehicleFeature>().HasKey(vf =>
               new { vf.VehicleId, vf.FeatureId });
         }
     }

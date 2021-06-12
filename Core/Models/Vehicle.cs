@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vega.Models
+namespace Vega.Core.Models
 {
     public class Vehicle
     {

@@ -4,6 +4,6 @@ namespace Vega.Core
 {
     public interface IUnitOfWork
     {
-         public Task<int> Complete();
+        public Task<int> Complete();
     }
 }

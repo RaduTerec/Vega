@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Vega.Models
+namespace Vega.Core.Models
 {
     /// <summary>
     /// Holds the car model. Ex: Vitarra, Corsa, etc

@@ -1,12 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vega.Models.DataTransferObjects
+namespace Vega.Core.Models
 {
-    public class KeyValuePairDTO
+    /// <summary>
+    /// Car feature like airbag, ABS, etc
+    /// </summary>
+    public class Feature
     {
         public long Id { get; set; }
 
         [Required]
+        [StringLength(255)]
         public string Name { get; set; }
     }
 }

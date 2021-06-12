@@ -1,7 +1,7 @@
 using System.Linq;
 using AutoMapper;
-using Vega.Models;
-using Vega.Models.DataTransferObjects;
+using Vega.Controllers.DataTransferObjects;
+using Vega.Core.Models;
 
 namespace Vega.Mappings
 {

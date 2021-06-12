@@ -1,10 +1,9 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Vega.Models.DataTransferObjects;
+using Vega.Controllers.DataTransferObjects;
 using Vega.Persistence;
 
 namespace Vega.Controllers
@@ -14,12 +13,10 @@ namespace Vega.Controllers
     public class FeatureController : ControllerBase
     {
         private readonly VegaDbContext _vegaDbContext;
-        private readonly ILogger<FeatureController> _logger;
         private readonly IMapper _mapper;
-  
-        public FeatureController(ILogger<FeatureController> logger, VegaDbContext context, IMapper mapper)  
+
+        public FeatureController(VegaDbContext context, IMapper mapper)
         {
-            _logger = logger;
             _vegaDbContext = context;
             _mapper = mapper;
         }
