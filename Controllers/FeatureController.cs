@@ -25,11 +25,11 @@ namespace Vega.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<FeatureDTO>> GetFeatures()
+        public async Task<IEnumerable<KeyValuePairDTO>> GetFeatures()
         {
             var features = await _vegaDbContext.Features.ToListAsync();
 
-            return _mapper.Map<IEnumerable<FeatureDTO>>(features);
+            return _mapper.Map<IEnumerable<KeyValuePairDTO>>(features);
         }
     }
 }

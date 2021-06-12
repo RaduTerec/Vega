@@ -11,8 +11,9 @@ namespace Vega.Mappings
         {
             // Domain to API Resource
             CreateMap<Make, MakeDTO>();
-            CreateMap<Model, ModelDTO>();
-            CreateMap<Feature, FeatureDTO>();
+            CreateMap<Make, KeyValuePairDTO>();
+            CreateMap<Model, KeyValuePairDTO>();
+            CreateMap<Feature, KeyValuePairDTO>();
             CreateMap<Vehicle, SaveVehicleDTO>()
                 .ForMember(vDto => vDto.Contact, opt => opt.MapFrom(v => new ContactDTO
                 {
@@ -30,7 +31,7 @@ namespace Vega.Mappings
                 }))
                 .ForMember(vDto => vDto.Make, opt => opt.MapFrom(v => v.Model.Make))
                 .ForMember(vDto => vDto.Features, opt => opt.MapFrom(v =>
-                    v.Features.Select(vf => new FeatureDTO { Id = vf.Feature.Id, Name = vf.Feature.Name })));
+                    v.Features.Select(vf => new KeyValuePairDTO { Id = vf.Feature.Id, Name = vf.Feature.Name })));
 
 
             // API to Domain

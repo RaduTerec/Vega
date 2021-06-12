@@ -3,17 +3,13 @@ using System.Collections.ObjectModel;
 
 namespace Vega.Models.DataTransferObjects
 {
-    public class MakeDTO
+    public class MakeDTO : KeyValuePairDTO
     {
-        public long Id { get; set; }
-
-        public string Name { get; set; }
-
-        public ICollection<ModelDTO> Models { get; }
+        public ICollection<KeyValuePairDTO> Models { get; }
 
         public MakeDTO()
         {
-            Models = new Collection<ModelDTO>();
+            Models = new Collection<KeyValuePairDTO>();
         }
     }
 }

@@ -1,8 +1,8 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vega.Models.DataTransferObjects
 {
-    public class ModelDTO
+    public class KeyValuePairDTO
     {
         public long Id { get; set; }
 
