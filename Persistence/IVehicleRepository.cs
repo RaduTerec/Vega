@@ -6,7 +6,11 @@ namespace Vega.Persistence
 {
     public interface IVehicleRepository
     {
-        public Task<Vehicle> GetVehicle(long id);
-        public Task<IEnumerable<Vehicle>> GetVehicles();
+        public Task<Vehicle> Get(long id);
+        public Task<Vehicle> GetWithRelated(long id);
+        public Task<Vehicle> GetWithFeatures(long id);
+        public Task<IEnumerable<Vehicle>> GetAll();
+        public Task AddAsync(Vehicle vehicle);
+        public void Remove(Vehicle vehicle);
     }
 }
