@@ -1,0 +1,489 @@
+Scope of course:
+	* CRUD Operations
+	* Forms
+	* Filtering, sorting and pagination
+	* Handling and logging errors
+	* Toast notifications (not real-time)
+	* Authentication and authorization
+	* Preventing CSRF attacks
+	* Uploading photos
+	* Displaying charts
+	* Dialog boxes
+	
+Out of scope:
+	* Complex domain
+	* Domain-driven Design ?????
+	* Design patterns
+	* Continous integration
+	* Automated testing
+	* Friendly UI
+	
+https://github.com/mosh-hamedani/vega/commits/master?before=4a09f50a4181d60134a9a816370b52276381c4d9+70&branch=master
+
+==================================================
+Prerequirements
+
+Angular
+	* Components
+	* Services
+	* Modules
+	* Dependency Injection
+	* Property and Event binding
+	* Forms
+	* Routing
+	
+ASP.NET MVC
+	* Controllers
+	* Actions
+	* Model Binding
+	* HTTP Verbs (GET, POST, PUT, DELETE)
+	
+Entity Framework 6
+	* Code-first Migrations
+	* LINQ
+	* DbContext
+	
+==================================================================
+Setup development environment
+
+Install VS Code
+---------------
+
+Login with your account and all settings and extensions will be synchronized. Choose "Replace local" to copy all settings from the remote location over to local.
+
+VS Code will sync: Settings, Shortcuts, User Snippets, Extensions, UI State
+
+Extensions needed:
+	* Angular Snippets Version 11
+	* ASP.NET Helper 0.6.4
+	* Auto Import 1.5.4
+	* Beautify 1.5.0
+	* C# 1.23.11 & C# Extensions 1.3.1
+	* Debugger for Firefox 2.9.4
+	* Docker 1.12.1
+	* npm 0.3.21
+	* REST Client 0.24.5
+	* SQL Server (mssql) 1.10.1
+
+Install NPM
+-----------
+
+Install Node.js and NPM
+https://www.npmjs.com/get-npm
+
+Add following packages:
+	* angular/cli
+	
+Commands are:
+	* npm install -g --save-dev @angular/cli@8.3.29
+
+Enable Policy Bypass to be able to run ng (angular CLI)
+	* Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope CurrentUser
+	
+Create a .NetCore + Angular project
+-----------------------------------
+1. Create a new folder
+2. Run the command: dotnet new angular
+
+Note:
+	* there are a lot of dotnet templates available. To see a full list run: dotnet new --list
+	
+Install MariaDB + HeidiSQL
+--------------------------
+Google it and go through the setup process. Simple and works just as well as SQL Express.
+
+Simple run
+----------
+In the project directory type "dotnet run"
+
+==================================================================
+Dotnet structure
+
+ClientApp
+= folder where the Angular app is. Inside we have the app folder, the components, etc.
+
+Controller
+= folder for the Controller classes. Think MVC Controller.
+
+Pages
+= similar with Views.
+
+wwwroot
+= root folder of the final webpage. Instead of blacklisting files and folders, dotnetcore whitelists files & folders to be included.
+
+appsettings.json
+= similar to web.config, stores application settings. There is already a template defined for logging.
+
+Program.cs
+= defines the entry point of the application. Calls `CreateHostBuilder` which will initialize the Kestrel webserver. This webserver can run under both Windows and Linux.
+
+Startup.cs
+= defines the services which will run in the app and the request pipeline
+
+ConfigureServices = used for dependency injection; If Controllers have dependencies which should be provided in the constructor, they will be registered here with their corresponding interface.
+
+Configure = defines the request pipeline (which middleware will answer which request);
+		  = ??? defines how the errors are logged.
+		  
+		  
+==================================================================
+Running the project
+
+Terminal
+--------
+dotnet run
+= runs the projects like Ctrl+F5 in VS
+
+dotnet watch run
+= when a .cs file is modified, the project is recompiled on the fly
+
+VS Code
+-------
+similar to VS, with set Breakpoint, debug etc
+
+
+ ----------
+| !!! Note |
+ ----------
+To enable the debug environment, make sure you have the environment variable set, or it's value is created in .vscode->launch.json
+ASPNETCORE_ENVIRONMENT="Development"
+
+==================================================================
+Creating the database
+
+1. Installing Entity Framework Core CLI tools
+---------------------------------------------
+These tools allow you to adapt the DatabaseSchema to a real-world model. They perform design-time development tasks. For example, they create migrations, apply migrations, generate a schema based on a model and generate code for a model based on an existing database. The commands are an extension to dotnet command. They allow working with a DB without needing to go offline.
+More information about EF Tools https://docs.microsoft.com/en-us/ef/core/cli/dotnet
+
+To install EF Core Cli tools run:
+	* dotnet tool install --global dotnet-ef
+	
+After installing the tools, open VS Code in the working folder, open terminal and install following packages to your project:
+	* dotnet add package Microsoft.EntityFrameworkCore.Design
+
+For SQL projects install:
+	* dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+For MariaDb / MySql install:
+	* dotnet add package Pomelo.EntityFrameworkCore.MySql
+	
+Note:
+	a. Make sure the csproj is updated correctly after *removing* a package.
+
+	
+2. Creating the Models
+----------------------
+Most people follow the code first approach, where they define the model and then the schema.
+So, to create the models, follow these steps:
+	* Create a new folder in the project root called "models"
+	* Add each model to your project, as a simple class with public properties.
+
+Read about models in EF: https://docs.microsoft.com/en-us/ef/core/modeling/
+	
+Note:
+
+!!!	a. Always create a relation using FK property + navigation property. Aka MakeID (FK property) + Make (navigation property).
+	b. If working with a small dataset, it makes sense to include other models as private key in the larger model.
+	   However, if the dataset is larger, work with separate models and it is advised to make 2 calls.	   
+	c. If a model contains a collection of objects, initialize the collection in the constructor of the object. This prevents a NullRefException + it's that model's responsability.
+	d. In the object inside the collection, it's advised to add a refernce to the parent so you can access it easier.
+!!! e. Add Required and StringLength to make sure your fields are not too large.
+	f. Verify if you can create a complexObject in EF Core. Something like Contact class inside Vehicle.
+!!!	g. A many-to-many rel is implemented by having a collection of the other model in each class.
+	h. Fluent API takes precedents and will override conventions and data annotations.
+	
+Read more about relations In EF Core:
+	https://docs.microsoft.com/en-us/ef/core/modeling/relationships
+	
+Ex:
+	public class Model
+    {
+        public long Id { get; set; }
+		
+		[Required]
+        [StringLength(255)]
+        public string Name { get; set; }
+		
+        public Make Make { get; set; }
+        public long MakeId { get; set; }
+    }
+	
+	public class Make
+    {
+        public long Id { get; set; }
+
+        [Required]
+        [StringLength(255)]
+        public string Name { get; set; }
+        
+        public ICollection<Model> Models { get; }
+
+        public Make()
+        {
+            Models = new Collection<Model>();
+        }
+    }
+
+3. Create the DbContext
+-----------------------
+This context will be used to generate the migration schema. Instead of using a ConnectionString in the contructor, the new EF class uses a generic options class which takes as parameter the current context. The connection string will be passed as parameter through the options class.
+
+	* In Models folder, add a new class "ProjectName_DbContext"
+	* register it as a DbContext by defining following constructor:
+		public VegaDbContext(DbContextOptions<VegaDbContext> options) : base(options)
+	* For each model add a corresponding DbSet
+	
+4. Connection string
+--------------------
+To define the connection for our database go to `appsettings.json` and add:
+	"ConnectionStrings": {
+		"VegaConnectionString": "server=localhost; port=3306; database=vega; user=sa; password=MyComplexPassword!234"
+	  }
+
+5. Registering the service
+--------------------------
+In the Startup class, in the method `ConfigureService` add the dependency injection:
+	services.AddDbContextPool<VegaDbContext>(options => options
+                .UseMySql(
+                    Configuration.GetConnectionString("VegaConnectionString"),
+                    ServerVersion.AutoDetect(Configuration.GetConnectionString("VegaConnectionString"))
+            ));
+			
+The `Configuration` objects is built by aggregation multiple configuration sources (appsetings.json, EnvironmentVariables etc). We can add a class "appsetings.Production.json" which will change the values for production.
+			
+6. Creating the Migration
+-------------------------
+We will use migrations to generate a clean DB schema, code-first approach. So, in VS Code terminal run:
+	
+	* dotnet ef migrations add InitialCreate
+This command will create the intial commit of the database. It will automatically create a folder "Migrations" in the root folder of the project.
+
+	* dotnet ef database update
+This command will actually create the database you specified.
+
+If you need to remove the last migration use:
+	* dotnet ef migrations remove
+	
+If you need to revert to a previous migration, use:
+	* dotnet ef update OlderMigrationName
+
+Notes:
+	a. If you need quick help use: dotnet ef --help
+	b. Use baby-steps when creating migrations, because EF cannot distinguish between a column rename and drop.
+	c. Review all migrations and make sure they don't affect your data.
+	d. The Snapshot.cs is always in-sync with the migrations, so never delete the migrations without deleting all migrations.
+	e. !!! If you specify an earlier migration, `dotnet ef database update migration_name` will *downgrade* the database to that version.
+
+Reads:
+More details about EF Core and migrations: https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/
+Other read about configuring MariaDB: https://blog.georgekosmidis.net/2020/07/15/using-mariadb-in-an-aspnet-core-api-with-entity-framework-core/
+
+
+7. Seeding the database
+-----------------------
+To seed the DB, create an empty migration and add SQL code to create records. It is important to add the code for downgrading the database, in our case to remove the added records. The SQL code to create records goes in the `Up` method, the one to downgrade the database in method `Down`.
+
+protected override void Up(MigrationBuilder migrationBuilder)
+{
+	migrationBuilder.Sql("INSERT INTO `vega`.`makes` (`Name`) VALUES ('Opel')");
+	migrationBuilder.Sql("INSERT INTO `vega`.`makes` (`Name`) VALUES ('VW')");
+	migrationBuilder.Sql("INSERT INTO `vega`.`makes` (`Name`) VALUES ('Peugeot')");
+}
+
+protected override void Down(MigrationBuilder migrationBuilder)
+{
+	migrationBuilder.Sql("DELETE FROM `vega`.`makes` WHERE `Name` IN ('Opel', 'VW', 'Peugeot')");
+}
+
+
+
+==================================================================
+Writing controllers
+
+A controller is used to define and group a set of actions. An action (or action method) is a method on a controller which handles requests. Controllers logically group similar actions together. This aggregation of actions allows common sets of rules, such as routing, caching, and authorization, to be applied collectively. Requests are mapped to actions through routing.
+Details here: https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/actions?view=aspnetcore-5.0
+
+1. Creating a new controller
+----------------------------
+Follow these steps:
+	* add a new class with the suffix "controller" inside the "Controller" folder
+	* it should inherit from `ControllerBase`
+	* define all required private objects and add them in the constructor. They will be called using DI.
+	* make sure you define the Route and decorate the class & methods with appropiate verbs.
+	
+!! Note
+	* To view child objects, you have to include them in the initial query.
+	
+Read more about routing here: https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-5.0
+	
+Ex:
+
+	[ApiController]
+    [Route("[controller]")]
+    public class MakeController : ControllerBase
+    {
+        private VegaDbContext _vegaDbContext;
+        private ILogger<MakeController> _logger;
+  
+        public MakeController(ILogger<MakeController> logger, VegaDbContext context)  
+        {
+            _logger = logger;
+            _vegaDbContext = context;  
+        }  
+  
+        [HttpGet]
+        public async Task<IEnumerable<Make>> GetMakes()
+        {
+            return await _vegaDbContext.Makes.Include(f => f.Models).ToListAsync();
+        }
+    }
+	
+2. Prepare the DTO objects
+--------------------------
+The API will work with publicly available objects, not with the same objects like the ones in the DB. We do this to protect the API from changes and isolate what changes we show to the public.
+
+`Model` becomes `ModelDTO` from below:
+
+public class ModelDTO
+{
+	public long Id { get; set; }
+	
+	public string Name { get; set; }
+}
+
+3. Add AutoMapper
+-----------------
+This package deals with mapping your internal objects to DTO, as explained here: https://codewithmukesh.com/blog/automapper-in-aspnet-core/
+	* dotnet add package AutoMapper
+	* dotnet add package AutoMapper.Extensions.Microsoft.DependencyInjection
+	
+Add the dependency injection in services:
+	* services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+	
+Create a mapping profile in the new `Mappings` folder in the root of the project:
+	public class MappingProfile : Profile
+	{
+		public MappingProfile()
+		{
+			CreateMap<Make, MakeDTO>();
+			CreateMap<Model, ModelDTO>();
+		}
+	}
+
+Change the Controller to work with the DTO objects.
+	public async Task<IEnumerable<MakeDTO>> GetMakes()
+	{
+		var makes = await _vegaDbContext.Makes.Include(f => f.Models).ToListAsync();
+
+		return _mapper.Map<IEnumerable<MakeDTO>>(makes);
+	}
+	
+==================================================================
+Implementing CRUD Operations
+
+We don't like loops in the DB, so if you need a relation to both make and model, make the relation just to model, because you can determine the make from the model.
+
+In the API, you want your arrays to contain simple objects (ex int, string), not complex (ex Model / Feature objects).
+In the API, you don't want to expose hidden properties like LastUpdate, which will be set only on the server side.
+
+1. Creating the API Data Transfer Objects
+-----------------------------------------
+There are some properties which you don't want exposed on the API, like LastUpdate.
+Some other properties can be simplified so we work with simple objects instead of complex ones. (ex work with featureID instead of the whole feature).
+Some properties can be grouped together so that they belong to a single class, even if in the DB they are in the parent class.
+
+Note:
+!!!	a. All DTO arrays need a setter even if they are instantiated in the constructor. Without a setter, the browser cannot set the objects' content.
+
+public class Vehicle
+{
+	public long Id { get; set; }
+
+	public long ModelId { get; set; }
+	[Required]
+	public Model Model { get; set; }
+
+	[Required]
+	public bool IsRegistered { get; set; }
+
+	[Required]
+	public ICollection<Feature> Features { get; }
+
+	[Required]
+	[StringLength(255)]
+	public string ContactName { get; set; }
+
+	[StringLength(255)]
+	public string ContactEmail { get; set; }
+
+	[Required]
+	[StringLength(255)]
+	public string ContactPhone { get; set; }
+
+	public DateTime LastUpdate { get; set; }
+
+	public Vehicle()
+	{
+		Features = new Collection<Feature>();
+		LastUpdate = DateTime.Now;
+	}
+}
+
+DTO classes:
+
+public class ContactDTO
+{
+	public string Name { get; set; }
+	public string Email { get; set; }
+	public string Phone { get; set; }
+}
+
+public class VehicleDTO
+{
+	public long Id { get; set; }
+	public long ModelId { get; set; }
+	public bool IsRegistered { get; set; }
+	public ContactDTO Contact { get; set; }
+	public ICollection<int> Features { get; set; }
+
+	public VehicleDTO()
+	{
+		Features = new Collection<int>();
+	}
+}
+
+2. Creating complex mappings
+----------------------------
+Since we created a DTO which has a child DTO, we need to tell the mapper how to associate the properties from the child DTO with the properties from the model.
+By using the method ReverseMap, the mapper will know automatically how to map ContactName etc with Contact.Name.
+
+However, because in the mapping Domain-to-API we simplify the features to a long array, in the API-to-Domain mapping, we need to remove Feature member to be able to populate it using the DB.
+
+// Domain to API and API to Domain
+CreateMap<Vehicle, VehicleDTO>()
+.ForMember(vDto => vDto.Contact, opt => opt.MapFrom(v => new ContactDTO
+{
+	Name = v.ContactName,
+	Email = v.ContactEmail,
+	Phone = v.ContactPhone
+}))
+.ForMember(vDto => vDto.Features, opt => opt.MapFrom(v => v.Features.Select(f => f.Id).ToArray()));
+
+// API to Domain
+CreateMap<VehicleDTO, Vehicle>()
+.ForMember(v => v.ContactName, opt => opt.MapFrom(vDto => vDto.Contact.Name))
+.ForMember(v => v.ContactEmail, opt => opt.MapFrom(vDto => vDto.Contact.Email))
+.ForMember(v => v.ContactPhone, opt => opt.MapFrom(vDto => vDto.Contact.Phone))
+.ForMember(v => v.Features, opt => opt.Ignore());
+
+3. Implementing validation
+--------------------------
+When using ApiController classes, the Model validation is done automatically based on the data annotations of the models. It is therefore crucial to define them properly.
+See: https://docs.microsoft.com/en-us/aspnet/core/mvc/models/validation?view=aspnetcore-5.0
+
+Notes
+!!!	a. Use FluentAPI in Domain Models and Data Annotations in DTO Models. Why? With FluentAPI you can define complex relationships which cannot be defined by Data Annotations.
+	b. In public APIs you could define your model errors inside the Data Annotation. a DBSet and return human-readable errors. This is overkill for this application.
+		
+		[StringLength(8, ErrorMessage = "Name length can't be more than 8.")]
+
