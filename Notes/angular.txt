@@ -1,0 +1,60 @@
+Angular front-end
+
+Register a new component in angular using:
+	* ng g component vehicle-form -m .\app.module.ts
+
+Create the new path in 
+	* nav-menu.component.html
+	
+Create form with a div with class form-group. Inside the div create a label for 'model' and a select button with id = 'model'.
+	* Write `form>did.form-group>label[for='model']+select[id='model']` and press 'Tab'
+	
+Read data from API using:
+	import { HttpClient } from '@angular/common/http';
+	import { Injectable } from '@angular/core';
+
+	@Injectable()
+
+	export class MakeService {
+	  public makes: Make[];
+
+	  constructor(private http: HttpClient) { }
+
+	  getMakes() {
+		return this.http.get<Make[]>('make');
+	  }
+	}
+
+	interface Make {
+	  name: string;
+	  models: Model[];
+	}
+
+	interface Model {
+	  name: string;
+	}
+	
+In the component read from the service:
+	export class VehicleFormComponent implements OnInit {
+
+	  makes;
+	  constructor(private makeservice: MakeService) { }
+
+	  ngOnInit(): void {
+		this.makeservice.getMakes()
+		  .subscribe(makes => {
+			this.makes = makes;
+			//console.log("Makes: ", this.makes);
+		  });    
+	  }
+
+	}
+	
+In the html read from the angular service:
+	<div class="form-group">
+        <label for="make">Make</label>
+        <select id="make" class="form-control">
+          <option value=""></option>
+          <option *ngFor="let m of makes" value="{{ m.id }}">{{ m.name }}</option>
+        </select>
+    </div>
