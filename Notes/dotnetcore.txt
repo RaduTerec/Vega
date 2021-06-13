@@ -20,28 +20,7 @@ Out of scope:
 	
 https://github.com/mosh-hamedani/vega/commits/master?before=4a09f50a4181d60134a9a816370b52276381c4d9+70&branch=master
 
-==================================================
-Prerequirements
 
-Angular
-	* Components
-	* Services
-	* Modules
-	* Dependency Injection
-	* Property and Event binding
-	* Forms
-	* Routing
-	
-ASP.NET MVC
-	* Controllers
-	* Actions
-	* Model Binding
-	* HTTP Verbs (GET, POST, PUT, DELETE)
-	
-Entity Framework 6
-	* Code-first Migrations
-	* LINQ
-	* DbContext
 	
 ==================================================================
 Setup development environment
@@ -96,6 +75,8 @@ Simple run
 ----------
 In the project directory type "dotnet run"
 
+
+
 ==================================================================
 Dotnet structure
 
@@ -125,6 +106,7 @@ ConfigureServices = used for dependency injection; If Controllers have dependenc
 Configure = defines the request pipeline (which middleware will answer which request);
 		  = ??? defines how the errors are logged.
 		  
+
 		  
 ==================================================================
 Running the project
@@ -147,6 +129,8 @@ similar to VS, with set Breakpoint, debug etc
  ----------
 To enable the debug environment, make sure you have the environment variable set, or it's value is created in .vscode->launch.json
 ASPNETCORE_ENVIRONMENT="Development"
+
+
 
 ==================================================================
 Creating the database
@@ -261,18 +245,18 @@ This command will create the intial commit of the database. It will automaticall
 	* dotnet ef database update
 This command will actually create the database you specified.
 
-If you need to remove the last migration use:
 	* dotnet ef migrations remove
+To remove the last migration.
 	
-If you need to revert to a previous migration, use:
 	* dotnet ef update OlderMigrationName
+To revert to a previous migration
 
 Notes:
 	a. If you need quick help use: dotnet ef --help
 	b. Use baby-steps when creating migrations, because EF cannot distinguish between a column rename and drop.
 	c. Review all migrations and make sure they don't affect your data.
 	d. The Snapshot.cs is always in-sync with the migrations, so never delete the migrations without deleting all migrations.
-	e. !!! If you specify an earlier migration, `dotnet ef database update migration_name` will *downgrade* the database to that version.
+!!!	e. If you specify an earlier migration, `dotnet ef database update migration_name` will *downgrade* the database to that version.
 
 Reads:
 More details about EF Core and migrations: https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/
@@ -311,8 +295,8 @@ Follow these steps:
 	* define all required private objects and add them in the constructor. They will be called using DI.
 	* make sure you define the Route and decorate the class & methods with appropiate verbs.
 	
-!! Note
-	* To view child objects, you have to include them in the initial query.
+Note
+!!!	* To be able to view child objects, use `include` in query.
 	
 Read more about routing here: https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-5.0
 	
@@ -377,14 +361,13 @@ Change the Controller to work with the DTO objects.
 
 		return _mapper.Map<IEnumerable<MakeDTO>>(makes);
 	}
+
+
 	
 ==================================================================
 Implementing CRUD Operations
 
 We don't like loops in the DB, so if you need a relation to both make and model, make the relation just to model, because you can determine the make from the model.
-
-In the API, you want your arrays to contain simple objects (ex int, string), not complex (ex Model / Feature objects).
-In the API, you don't want to expose hidden properties like LastUpdate, which will be set only on the server side.
 
 1. Creating the API Data Transfer Objects
 -----------------------------------------
@@ -407,12 +390,13 @@ public class Vehicle
 	public bool IsRegistered { get; set; }
 
 	[Required]
-	public ICollection<Feature> Features { get; }
+	public ICollection<VehicleFeature> Features { get; }
 
 	[Required]
 	[StringLength(255)]
 	public string ContactName { get; set; }
 
+	[Required]
 	[StringLength(255)]
 	public string ContactEmail { get; set; }
 
@@ -424,8 +408,7 @@ public class Vehicle
 
 	public Vehicle()
 	{
-		Features = new Collection<Feature>();
-		LastUpdate = DateTime.Now;
+		Features = new Collection<VehicleFeature>();
 	}
 }
 
@@ -455,35 +438,216 @@ public class VehicleDTO
 2. Creating complex mappings
 ----------------------------
 Since we created a DTO which has a child DTO, we need to tell the mapper how to associate the properties from the child DTO with the properties from the model.
-By using the method ReverseMap, the mapper will know automatically how to map ContactName etc with Contact.Name.
-
-However, because in the mapping Domain-to-API we simplify the features to a long array, in the API-to-Domain mapping, we need to remove Feature member to be able to populate it using the DB.
+By using `ReverseMap`, the mapper will know automatically how to map `ContactName` with `Contact.Name`.
 
 // Domain to API and API to Domain
-CreateMap<Vehicle, VehicleDTO>()
-.ForMember(vDto => vDto.Contact, opt => opt.MapFrom(v => new ContactDTO
-{
-	Name = v.ContactName,
-	Email = v.ContactEmail,
-	Phone = v.ContactPhone
-}))
-.ForMember(vDto => vDto.Features, opt => opt.MapFrom(v => v.Features.Select(f => f.Id).ToArray()));
+CreateMap<Vehicle, SaveVehicleDTO>()
+	.ForMember(vDto => vDto.Contact, opt => opt.MapFrom(v => new ContactDTO
+	{
+		Name = v.ContactName,
+		Email = v.ContactEmail,
+		Phone = v.ContactPhone
+	}))
+	.ForMember(vDto => vDto.Features, opt => opt.MapFrom(v => v.Features.Select(vf => vf.FeatureId)));
+
+Because in the Domain-to-API mapping we simplify `Features` to `long array`, in the API-to-Domain mapping, we remove `Features` member, to populate it differently.
+Since we want the mapper to map the API to domain model internally, we had to introduce the `VehicleFeature` join-table class.
 
 // API to Domain
-CreateMap<VehicleDTO, Vehicle>()
-.ForMember(v => v.ContactName, opt => opt.MapFrom(vDto => vDto.Contact.Name))
-.ForMember(v => v.ContactEmail, opt => opt.MapFrom(vDto => vDto.Contact.Email))
-.ForMember(v => v.ContactPhone, opt => opt.MapFrom(vDto => vDto.Contact.Phone))
-.ForMember(v => v.Features, opt => opt.Ignore());
+CreateMap<SaveVehicleDTO, Vehicle>()
+	.ForMember(v => v.Id, opt => opt.Ignore())
+	.ForMember(v => v.ContactName, opt => opt.MapFrom(vDto => vDto.Contact.Name))
+	.ForMember(v => v.ContactEmail, opt => opt.MapFrom(vDto => vDto.Contact.Email))
+	.ForMember(v => v.ContactPhone, opt => opt.MapFrom(vDto => vDto.Contact.Phone))
+	.ForMember(v => v.Features, opt => opt.Ignore())
+	
+Important!!
+To associate the features from the API back to the domain model, we have to:
+	- remove all deleted features
+	- add all new features as domain features back to the object.
+To achieve this, we use the method `AfterMap`
+
+.AfterMap((vr, v) =>
+{
+	// Remove unselected features
+	var removedFeatures = v.Features.Where(f => !vr.Features.Contains(f.FeatureId)).ToList();
+	foreach (var feature in removedFeatures)
+	{
+		v.Features.Remove(feature);
+	}
+
+	// Add new features
+	var addedFeatures = vr.Features
+							.Where(id => !v.Features.Any(f => f.FeatureId == id))
+							.Select(id => new VehicleFeature { FeatureId = id }).ToList();
+	foreach (var feature in addedFeatures)
+	{
+		v.Features.Add(feature);
+	}
+});
 
 3. Implementing validation
 --------------------------
-When using ApiController classes, the Model validation is done automatically based on the data annotations of the models. It is therefore crucial to define them properly.
-See: https://docs.microsoft.com/en-us/aspnet/core/mvc/models/validation?view=aspnetcore-5.0
+When using `ApiController` classes, the Model validation is done automatically based on the data annotations of the models. It is therefore crucial to define them properly. See: https://docs.microsoft.com/en-us/aspnet/core/mvc/models/validation?view=aspnetcore-5.0
 
 Notes
 !!!	a. Use FluentAPI in Domain Models and Data Annotations in DTO Models. Why? With FluentAPI you can define complex relationships which cannot be defined by Data Annotations.
-	b. In public APIs you could define your model errors inside the Data Annotation. a DBSet and return human-readable errors. This is overkill for this application.
-		
+	b. In public APIs you could define your model errors inside the Data Annotation.
 		[StringLength(8, ErrorMessage = "Name length can't be more than 8.")]
+		
+ContactDTO becomes:
+public class ContactDTO
+{
+	[Required]
+	[StringLength(255)]
+	public string Name { get; set; }
 
+	[Required]
+	[EmailAddress]
+	[StringLength(255)]
+	public string Email { get; set; }
+
+	[Required]
+	[Phone]
+	[StringLength(255)]
+	public string Phone { get; set; }
+}
+	
+4. Actual CRUD Operations
+-------------------------
+If possible use `FindAsync` because it's up to 1000 times faster than `SingleOrDefaultAsync`
+`SingleOrDefaultAsync` will return a default null object if not found, which can be used for validating a request.
+Only in the `Insert` method verify if the id of the object is null.
+
+Use the mapper to copy the properties from the API to the domain model.
+	_mapper.Map(vehicleDTO, vehicleToUpdate);
+	
+Even when deleting an object, retrieve it from the DB to make sure the object exists.
+
+
+
+==================================================================
+Refactoring towards clean architecture
+
+1. DTOs revisited
+-----------------
+You should use different DTOs based on their purpose:
+	- one for reading, one for sending data to the controller.
+	- encapsulate fields with the same purpose in a single DTO (ex: contactDTO)
+See `VehicleDTO` vs `SaveVehicleDTO`.
+
+Why use DTOs?
+	- prevent API contract from breaking
+	- protect site from over-posting (not send LastUpdate)
+	
+Group simple DTOs together. Ex Model, Make and Feature all use a `KeyValuePair {ID, Name}`. Therefore, remove properites and leave only KeyValuePair.
+
+public class MakeDTO : KeyValuePairDTO
+{
+	public ICollection<KeyValuePairDTO> Models { get; }
+
+	public MakeDTO()
+	{
+		Models = new Collection<KeyValuePairDTO>();
+	}
+}
+	
+To eager load a property in the model, use `ThenInclude`:
+await _vegaDbContext.Vehicles
+	.Include(v => v.Features)
+		.ThenInclude(vf => vf.Feature)
+	.Include(v => v.Model)
+		.ThenInclude(m => m.Make)
+	.SingleOrDefaultAsync(v => v.Id.Equals(Id));
+
+2. Repository pattern
+--------------------------------------
+REPOSITORY = COLLECTION(Obj)
+Think of a repository as `List<string>()`. A list doesn't have methods for saving or updating objects.
+
+Definition
+	= Mediates between the domain and data mapping layers, acting like an in-memory collection of domain objects.
+
+Purpose of a repository:
+	a. Reduce the number of database queries.
+	b. Decouple code from ORM.
+	c(?). Help with unit testing.
+
+A repository has following types of methods
+	Get(obj)
+	Add(obj)
+	Find(Obj)
+	Remove(obj)
+	
+Why DbContext and DbSet are not implementations of Repositories:
+	a. DbContext returns `IQueryable`, which still encourages fat queries.
+	b. DbContext is a type defined by EF, so it's tightly coupled.
+	
+Implementation of the repository pattern
+
+	IRepository <-------------- IVehicleRepository
+		^								^
+		|								|
+	Repository	<-------------- VehicleRepository
+	
+The interface `IRepository` contains the general signatures for a repository: Get, Add, Find, Remove.
+The `Repository` class implements above methods, with a generic context.
+`IVehicleRepository` interface adds signatures for specific repository methods: GetWithFeatures, GetWithRelated, GetAll
+`VehicleRepository` will inherit the methods from `Repository` and implement the specific methods from `IVehicleRepository`.
+
+Use design patterns when necessary, not as deodorant for smelly code!
+
+We use the repository pattern to decouple the controller from ORM:
+	public VehicleController(IMapper mapper, IVehicleRepository vehicleRepository, IUnitOfWork unitOfWork)
+
+In case of the Vega app, since we have only 1 repository (for now), we start with just a simple interface and implementation.
+
+public interface IVehicleRepository
+{
+	public Task<Vehicle> Get(long id);
+	public Task<Vehicle> GetWithRelated(long id);
+	public Task<Vehicle> GetWithFeatures(long id);
+	public Task<IEnumerable<Vehicle>> GetAll();
+	public Task AddAsync(Vehicle vehicle);
+	public void Remove(Vehicle vehicle);
+}
+
+Note
+!!!	a. When registering `IVehicleRepository`, since the DbContext is scoped, we will also register it as scoped.
+	b. Possible service registrations:
+		1. Transient = a separate instance of repository for every use.
+		2. Scoped = a single instance of repository for each request.
+		3. Singleton = a single instance of the repository during application lifecycle.
+
+3. Unit of work pattern
+-----------------------
+Unit of work = handles the transaction of the repositories registered for it.
+
+Definition
+	= Maintains a list of objects affected by a transaction and coordinates the writing out of changes.
+	
+A unit of work contains:
+	- relevant repositories (ex: vehicleRepo, featureRepo, etc)
+	- a Complete method
+	
+The `Complete` method essentially saves changes in the DB.
+In our case, since we use only `VehicleRepository`, we only added the `Complete` method in the UnitOfWork.
+
+3. Dependency inversion principle
+---------------------------------
+Higher level modules should not depend on low-level modules.
+Both should depend on abstractions.
+
+Ex: Controller ------> IRepository <------- Repository
+Now both Controller and Repository depend on Low-level module, since IRepository is in the core module.
+
+!!! Why? To minimize the impact of changes.
+!!! Interface = CONTRACT between the IMPLEMENTATION and the CONSUMER.
+
+4. Layers vs tiers
+------------------
+Layers = folders like Presentation, Business Logic, Data access layer.
+Tiers = PHYSICAL DISTRIBUTION OF THE SOFTWARE: client machine (on browser), web server and database.
+
+An application is decoupled and well-written if it the dependency inversion principle is respected, if it's easy to change the ORM etc.
+An application is not decoupled if it uses 3 layers.
