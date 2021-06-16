@@ -21,10 +21,10 @@
 
     <p>Is this vehicle registered?</p>
     <label for="registered" class="radio-inline">
-      <input type="radio" name="isRegistered" id="registered" value="true" [(ngModel)]="vehicle.isRegistered"> Yes
+      <input type="radio" name="isRegistered" id="registered" [value]="true" [(ngModel)]="vehicle.isRegistered"> Yes
     </label>  
     <label for="registered" class="radio-inline">
-      <input type="radio" name="isRegistered" id="notRegistered" value="false" [(ngModel)]="vehicle.isRegistered"> No
+      <input type="radio" name="isRegistered" id="notRegistered" [value]="false" [(ngModel)]="vehicle.isRegistered"> No
     </label>
 
     <h2>Features</h2>
