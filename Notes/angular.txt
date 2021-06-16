@@ -67,3 +67,18 @@ This control object knows if this input field has been:
 	* gives value
 	
 We can use Reactive Forms (written in code) or a Template-driven form (created via annotations).
+
+Installing Toastr for notifications
+-----------------------------------
+Follow the steps on: https://www.npmjs.com/package/ngx-toastr
+
+1. Go to ClientApp
+	npm install ngx-toastr@10.1.0 --save
+	npm install @angular/animations --save
+	
+2. In angular.json, find "styles" and add:
+	"node_modules/ngx-toastr/toastr.css"
+	
+3. In app.module.ts import the 2 modules:
+	import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+	import { ToastrModule } from 'ngx-toastr';

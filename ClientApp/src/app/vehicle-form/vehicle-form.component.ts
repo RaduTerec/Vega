@@ -1,5 +1,7 @@
+import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { Component, OnInit } from '@angular/core';
 import { VehicleService } from '../services/vehicle.service';
+import { title } from 'process';
 
 @Component({
   selector: 'app-vehicle-form',
@@ -16,7 +18,7 @@ export class VehicleFormComponent implements OnInit {
     contact: {}
   };
 
-  constructor(private vehicleService: VehicleService) { }
+  constructor(private vehicleService: VehicleService, private toastrService: ToastrService) { }
 
   ngOnInit(): void {
     this.vehicleService.getMakes()
@@ -44,6 +46,13 @@ export class VehicleFormComponent implements OnInit {
 
   submit() {
     this.vehicleService.create(this.vehicle)
-    .subscribe(x => console.log(x));
+    .subscribe(
+      x => console.log(x),
+      error => {        
+        this.toastrService.error("An unexpected error occured", "Error " + error.status, {
+          timeOut: 5000
+        });
+      }
+    );
   }
 }
