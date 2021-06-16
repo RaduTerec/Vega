@@ -58,3 +58,12 @@ In the html read from the angular service:
           <option *ngFor="let m of makes" value="{{ m.id }}">{{ m.name }}</option>
         </select>
     </div>
+	
+When we build forms with anuglar, there is always a control object associated with each input field.
+This control object knows if this input field has been:
+	* touched
+	* dirty = value changed
+	* valid
+	* gives value
+	
+We can use Reactive Forms (written in code) or a Template-driven form (created via annotations).
