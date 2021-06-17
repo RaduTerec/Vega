@@ -1,3 +1,4 @@
+import * as Raven from 'raven-js'; 
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -13,6 +14,8 @@ import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 import { VehicleFormComponent } from './vehicle-form/vehicle-form.component';
+
+Raven.config('https://0d358e8171024842ad5bfae86bd34a44@o862752.ingest.sentry.io/5822002').install();
 
 @NgModule({
   declarations: [
