@@ -82,3 +82,34 @@ Follow the steps on: https://www.npmjs.com/package/ngx-toastr
 3. In app.module.ts import the 2 modules:
 	import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 	import { ToastrModule } from 'ngx-toastr';
+	
+4. Use in whatever class is needed.
+
+Error handling
+--------------
+All errors hit ErrorHandler. By deriving a class from ErrorHandler you can treat your custom exceptions.
+When injecting Toastr service, we need to inject it manually, since ErrorHandler is loaded before the compiler learns what Toastr is.
+
+Zones
+-----
+By running a function inside a zone you always have some code executed before and after the callback.
+Angular runs all its code in zones. Actually it created a wrapper around zone.js, called ngZone.
+
+var Zone = {
+	run: function(callback) {
+		if (this.beforeTask)
+			this.beforeTask();
+		
+		callback();
+		
+		if (this.afterTask)
+			this.afterTask();
+	}
+}
+
+Zone.beforeTask = () => { console.log("Before"); }
+Zone.afterTask = () => { console.log("After"); }
+Zone.run = () => { console.log("Hello from the other side"); }
+
+To run a code inside a zone and ensure it is called before Angulars' change detection algorithm, use:
+
