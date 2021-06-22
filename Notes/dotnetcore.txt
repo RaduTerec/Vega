@@ -279,6 +279,12 @@ protected override void Down(MigrationBuilder migrationBuilder)
 	migrationBuilder.Sql("DELETE FROM `vega`.`makes` WHERE `Name` IN ('Opel', 'VW', 'Peugeot')");
 }
 
+8. Publishing to Production
+---------------------------
+tun the commands:
+	`set ASPNETCORE_ENVIRONMENT=Staging`
+	`dotnet watch run`
+	
 
 
 ==================================================================
