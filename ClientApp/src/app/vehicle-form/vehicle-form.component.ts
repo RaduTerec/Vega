@@ -1,5 +1,8 @@
+import * as _ from 'underscore';
+import { Vehicle } from './../models/vehicle';
+import { SaveVehicle } from './../models/save-vehicle';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { VehicleService } from '../services/vehicle.service';
 import { forkJoin } from 'rxjs';
 
@@ -13,9 +16,17 @@ export class VehicleFormComponent implements OnInit {
   makes: any;
   models: any;
   features: any;
-  vehicle: any = {
+  vehicle: SaveVehicle = {
+    id: 0,
+    makeId: 0,
+    modelId: 0,
+    isRegistered: false,
     features: [],
-    contact: {}
+    contact: {
+      name: '',
+      email: '',
+      phone: ''
+    }
   };
 
   constructor(
@@ -42,7 +53,8 @@ export class VehicleFormComponent implements OnInit {
       this.features = data[1];
 
       if (this.vehicle.id) {
-        this.vehicle = data[2];
+        this.setVehicle(data[2]);
+        this.populateModels();
       }
     }, err => {
       if (err.status == 400 || err.status == 404) {
@@ -52,8 +64,7 @@ export class VehicleFormComponent implements OnInit {
   }
 
   onMakeChange(): void {
-    var selectedMake = this.makes.find(m => m.id == this.vehicle.makeId);
-    this.models = selectedMake ? selectedMake.models : [];
+    this.populateModels();
     delete this.vehicle.modelId;
   }
 
@@ -70,5 +81,19 @@ export class VehicleFormComponent implements OnInit {
   submit() {
     this.vehicleService.create(this.vehicle)
       .subscribe(x => console.log(x));
+  }
+
+  private setVehicle(v: Vehicle) {
+    this.vehicle.id = v.id;
+    this.vehicle.makeId = v.make.id;
+    this.vehicle.modelId = v.model.id;
+    this.vehicle.isRegistered = v.isRegistered;
+    this.vehicle.contact = v.contact;
+    this.vehicle.features = _.pluck(v.features, 'id');
+  }
+
+  private populateModels() {
+    var selectedMake = this.makes.find(m => m.id == this.vehicle.makeId);
+    this.models = selectedMake ? selectedMake.models : [];
   }
 }
