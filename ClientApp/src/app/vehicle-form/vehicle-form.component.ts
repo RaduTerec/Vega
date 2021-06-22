@@ -83,7 +83,7 @@ export class VehicleFormComponent implements OnInit {
   submit() {
     if (this.vehicle.id) {
       this.vehicleService.update(this.vehicle)
-        .subscribe(v => {
+        .subscribe(x => {
           this.toastrService.success("The vehicle was updated successfully", "Success", {
             timeOut: 5000
           });
@@ -96,6 +96,15 @@ export class VehicleFormComponent implements OnInit {
 
     this.vehicleService.create(this.vehicle)
       .subscribe(x => console.log(x));
+  }
+
+  delete() {
+    if (confirm("Are you sure?")) {
+      this.vehicleService.delete(this.vehicle.id)
+        .subscribe(x => {
+          this.router.navigate(['/']);
+        });
+    }
   }
 
   private setVehicle(v: Vehicle) {

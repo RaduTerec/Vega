@@ -16,15 +16,19 @@ export class VehicleService {
     return this.http.get<any>('api/feature');
   }
 
-  create(vehicle) {
+  create(vehicle: SaveVehicle) {
     return this.http.post('/api/vehicle', vehicle);
   }
 
-  getVehicle(id) {
+  getVehicle(id: number) {
     return this.http.get('/api/vehicle/' + id);
   }
 
-  update(vehicle : SaveVehicle) {
+  update(vehicle: SaveVehicle) {
     return this.http.put('/api/vehicle/' + vehicle.id, vehicle);
+  }
+
+  delete(id: number) {
+    return this.http.delete('/api/vehicle/' + id);
   }
 }
