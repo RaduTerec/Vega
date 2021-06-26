@@ -13,7 +13,6 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./vehicle-form.component.css']
 })
 export class VehicleFormComponent implements OnInit {
-
   makes: any;
   models: any;
   features: any;

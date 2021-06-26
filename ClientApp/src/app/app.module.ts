@@ -12,8 +12,8 @@ import { AppErrorHandler } from './app.error-handler';
 import { VehicleService } from './services/vehicle.service';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { HomeComponent } from './home/home.component';
 import { VehicleFormComponent } from './vehicle-form/vehicle-form.component';
+import { VehicleListComponent } from './vehicle-list/vehicle-list.component';
 
 Raven.config('https://0d358e8171024842ad5bfae86bd34a44@o862752.ingest.sentry.io/5822002').install();
 
@@ -21,8 +21,8 @@ Raven.config('https://0d358e8171024842ad5bfae86bd34a44@o862752.ingest.sentry.io/
   declarations: [
     AppComponent,
     NavMenuComponent,
-    HomeComponent,
-    VehicleFormComponent
+    VehicleFormComponent,
+    VehicleListComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -31,7 +31,7 @@ Raven.config('https://0d358e8171024842ad5bfae86bd34a44@o862752.ingest.sentry.io/
     BrowserAnimationsModule,
     ToastrModule.forRoot(),
     RouterModule.forRoot([
-      { path: '', component: HomeComponent, pathMatch: 'full' },
+      { path: '', component: VehicleListComponent, pathMatch: 'full' },
       { path: 'vehicles/new', component: VehicleFormComponent },
       { path: 'vehicles/:id', component: VehicleFormComponent }
     ])
