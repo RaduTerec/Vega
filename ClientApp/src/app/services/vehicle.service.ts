@@ -1,6 +1,8 @@
 import { SaveVehicle } from '../models/save-vehicle';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Vehicle } from '../models/vehicle';
 
 @Injectable()
 
@@ -22,6 +24,10 @@ export class VehicleService {
 
   getVehicle(id: number) {
     return this.http.get('/api/vehicle/' + id);
+  }
+
+  getVehicles():Observable<Vehicle[]> {
+    return this.http.get('/api/vehicle/') as Observable<Vehicle[]>;
   }
 
   update(vehicle: SaveVehicle) {

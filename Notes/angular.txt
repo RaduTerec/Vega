@@ -113,3 +113,8 @@ Zone.run = () => { console.log("Hello from the other side"); }
 
 To run a code inside a zone and ensure it is called before Angulars' change detection algorithm, use:
 
+To define a return type in angular:
+
+getVehicles():Observable<Vehicle[]> {
+    return this.http.get('/api/vehicle/') as Observable<Vehicle[]>;
+  }
