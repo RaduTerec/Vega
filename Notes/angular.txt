@@ -118,3 +118,11 @@ To define a return type in angular:
 getVehicles():Observable<Vehicle[]> {
     return this.http.get('/api/vehicle/') as Observable<Vehicle[]>;
   }
+  
+[routerLinkActiveOptions]="{exact: true}"
+	-> matches the link only if exact match => won't highlight vehicles/new only vehicles
+	
+Use the class to pass state between calls. Eg use filter.make to remember what the filter contains.
+Use client-side filtering for data with at most a couple hundred records. It's very fast, but can get out of hands for large data.
+To apply filtering, at init store the whole list in a safe variable. Apply filtering on that list and assign the result.
+See commit "client-side filtering".

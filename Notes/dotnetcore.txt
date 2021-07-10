@@ -656,3 +656,5 @@ Tiers = PHYSICAL DISTRIBUTION OF THE SOFTWARE: client machine (on browser), web 
 
 An application is decoupled and well-written if it the dependency inversion principle is respected, if it's easy to change the ORM etc.
 An application is not decoupled if it uses 3 layers.
+
+Best methods are methods with no parameters (Uncle Bob)
