@@ -7,6 +7,7 @@ import { Vehicle } from '../models/vehicle';
 @Injectable()
 
 export class VehicleService {
+  private readonly vehicleEndpoint = 'api/vehicle';
 
   constructor(private http: HttpClient) { }
 
@@ -19,22 +20,35 @@ export class VehicleService {
   }
 
   create(vehicle: SaveVehicle) {
-    return this.http.post('/api/vehicle', vehicle);
+    return this.http.post(this.vehicleEndpoint, vehicle);
   }
 
   getVehicle(id: number) {
-    return this.http.get('/api/vehicle/' + id);
+    return this.http.get(this.vehicleEndpoint + '/' + id);
   }
 
-  getVehicles():Observable<Vehicle[]> {
-    return this.http.get('/api/vehicle/') as Observable<Vehicle[]>;
+  getVehicles(filter):Observable<Vehicle[]> {
+    return this.http.get(this.vehicleEndpoint + '?' + this.toFilterQuery(filter)) as Observable<Vehicle[]>;
+  }
+
+  toFilterQuery(obj) {
+    var parts = [];
+
+    for (var property in obj) {
+      var value = obj[property];
+      
+      if (value != null && value != undefined) 
+        parts.push(encodeURIComponent(property) + '=' + encodeURIComponent(value));
+    }
+
+    return parts.join('&');
   }
 
   update(vehicle: SaveVehicle) {
-    return this.http.put('/api/vehicle/' + vehicle.id, vehicle);
+    return this.http.put(this.vehicleEndpoint + '/' + vehicle.id, vehicle);
   }
 
   delete(id: number) {
-    return this.http.delete('/api/vehicle/' + id);
+    return this.http.delete(this.vehicleEndpoint + '/' + id);
   }
 }

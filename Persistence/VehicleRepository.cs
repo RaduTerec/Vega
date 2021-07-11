@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Vega.Core;
 using Vega.Core.Models;
@@ -58,14 +59,21 @@ namespace Vega.Persistence
         /// Gets an enumerable of vehicles
         /// </summary>
         /// <returns><see cref="IEnumerable{Vehicle}"/></returns>
-        public async Task<IEnumerable<Vehicle>> GetAll()
+        public async Task<IEnumerable<Vehicle>> GetAll(Filter filter)
         {
-            return await _vegaDbContext.Vehicles
+            var query = _vegaDbContext.Vehicles
                 .Include(v => v.Features)
                     .ThenInclude(vf => vf.Feature)
                 .Include(v => v.Model)
                     .ThenInclude(m => m.Make)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (filter.MakeId.HasValue)
+            {
+                query = query.Where(v => v.Model.MakeId == filter.MakeId);
+            }
+
+            return await query.ToListAsync();
         }
 
         /// <summary>

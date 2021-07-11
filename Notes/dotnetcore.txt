@@ -658,3 +658,19 @@ An application is decoupled and well-written if it the dependency inversion prin
 An application is not decoupled if it uses 3 layers.
 
 Best methods are methods with no parameters (Uncle Bob)
+
+
+
+==================================================================
+Filtering, Sorting, Pagination
+
+1. Filtering
+------------
+
+When using filters, use a separate model for your C# code vs Client code. See how we handle display of models.
+	!!Change the repository to return a query and make changes on that query before running it.
+
+It is alright to change the Repository contract to receive the filter paramater.
+
+There is an issue with HttpGet:
+	- why does it work only with simple data types, like int?
