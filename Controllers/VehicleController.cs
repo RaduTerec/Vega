@@ -25,10 +25,10 @@ namespace Vega.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<VehicleDTO>> Get(int? makeId)
+        public async Task<IEnumerable<VehicleDTO>> Get([FromQuery] VehicleQueryDTO vehicleQueryDTO)
         {
-            var filter = new Filter { MakeId = makeId };
-            var vehicles = await _vehicleRepository.GetAll(filter);
+            var vehicleQuery = _mapper.Map<VehicleQuery>(vehicleQueryDTO);
+            var vehicles = await _vehicleRepository.GetAll(vehicleQuery);
             return _mapper.Map<IEnumerable<VehicleDTO>>(vehicles);
         }
 

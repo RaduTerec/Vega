@@ -666,11 +666,19 @@ Filtering, Sorting, Pagination
 
 1. Filtering
 ------------
-
 When using filters, use a separate model for your C# code vs Client code. See how we handle display of models.
 	!!Change the repository to return a query and make changes on that query before running it.
 
 It is alright to change the Repository contract to receive the filter paramater.
 
 There is an issue with HttpGet:
-	- why does it work only with simple data types, like int?
+	- to make HttpGet work with complex objects, define the place from where the object is read. Eg:
+
+public async Task<IEnumerable<VehicleDTO>> Get([FromQuery] VehicleQueryDTO vehicleQueryDTO)
+
+	
+2. Sorting
+----------
+For sorting it's enough to use a string for the Column which will be sorted and a boolean for the direction.
+
+Use a dictionary with <string, Expression> to map a column with it's expression value.

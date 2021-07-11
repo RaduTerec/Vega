@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Vega.Core;
 using Vega.Core.Models;
@@ -58,8 +60,9 @@ namespace Vega.Persistence
         /// <summary>
         /// Gets an enumerable of vehicles
         /// </summary>
+        /// <param name="vehicleQuery">Filtering and sorting query for vehicles</param>
         /// <returns><see cref="IEnumerable{Vehicle}"/></returns>
-        public async Task<IEnumerable<Vehicle>> GetAll(Filter filter)
+        public async Task<IEnumerable<Vehicle>> GetAll(VehicleQuery vehicleQuery)
         {
             var query = _vegaDbContext.Vehicles
                 .Include(v => v.Features)
@@ -68,10 +71,12 @@ namespace Vega.Persistence
                     .ThenInclude(m => m.Make)
                 .AsQueryable();
 
-            if (filter.MakeId.HasValue)
+            if (vehicleQuery.MakeId.HasValue)
             {
-                query = query.Where(v => v.Model.MakeId == filter.MakeId);
+                query = query.Where(v => v.Model.MakeId == vehicleQuery.MakeId);
             }
+
+            query = this.ApplyOrdering(query, vehicleQuery);
 
             return await query.ToListAsync();
         }
@@ -92,6 +97,31 @@ namespace Vega.Persistence
         public void Remove(Vehicle vehicle)
         {
             _vegaDbContext.Vehicles.Remove(vehicle);
+        }
+
+        private IQueryable<Vehicle> ApplyOrdering(IQueryable<Vehicle> query, VehicleQuery vehicleQuery)
+        {
+            if (string.IsNullOrEmpty(vehicleQuery.SortBy))
+            {
+                return query;
+            }
+            
+            var columnsMap = new Dictionary<string, Expression<Func<Vehicle, object>>>()
+            {
+                ["make"] = v => v.Model.Make.Name,
+                ["model"] = v => v.Model.Name,
+                ["contactName"] = v => v.ContactName,
+                ["id"] = v => v.Id
+            };
+
+            if (vehicleQuery.IsAscending)
+            {
+                return query.OrderBy(columnsMap[vehicleQuery.SortBy]);
+            }
+            else
+            {
+                return query.OrderByDescending(columnsMap[vehicleQuery.SortBy]);
+            }
         }
     }
 }
