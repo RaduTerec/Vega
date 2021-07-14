@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using vega.Extensions;
 using Vega.Core;
 using Vega.Core.Models;
 
@@ -76,7 +77,14 @@ namespace Vega.Persistence
                 query = query.Where(v => v.Model.MakeId == vehicleQuery.MakeId);
             }
 
-            query = this.ApplyOrdering(query, vehicleQuery);
+            var columnsMap = new Dictionary<string, Expression<Func<Vehicle, object>>>()
+            {
+                ["make"] = v => v.Model.Make.Name,
+                ["model"] = v => v.Model.Name,
+                ["contactName"] = v => v.ContactName
+            };
+
+            query = query.ApplyOrdering(vehicleQuery, columnsMap);
 
             return await query.ToListAsync();
         }
@@ -97,31 +105,6 @@ namespace Vega.Persistence
         public void Remove(Vehicle vehicle)
         {
             _vegaDbContext.Vehicles.Remove(vehicle);
-        }
-
-        private IQueryable<Vehicle> ApplyOrdering(IQueryable<Vehicle> query, VehicleQuery vehicleQuery)
-        {
-            if (string.IsNullOrEmpty(vehicleQuery.SortBy))
-            {
-                return query;
-            }
-            
-            var columnsMap = new Dictionary<string, Expression<Func<Vehicle, object>>>()
-            {
-                ["make"] = v => v.Model.Make.Name,
-                ["model"] = v => v.Model.Name,
-                ["contactName"] = v => v.ContactName,
-                ["id"] = v => v.Id
-            };
-
-            if (vehicleQuery.IsAscending)
-            {
-                return query.OrderBy(columnsMap[vehicleQuery.SortBy]);
-            }
-            else
-            {
-                return query.OrderByDescending(columnsMap[vehicleQuery.SortBy]);
-            }
         }
     }
 }

@@ -682,3 +682,6 @@ public async Task<IEnumerable<VehicleDTO>> Get([FromQuery] VehicleQueryDTO vehic
 For sorting it's enough to use a string for the Column which will be sorted and a boolean for the direction.
 
 Use a dictionary with <string, Expression> to map a column with it's expression value.
+
+To make the code reusable, define extension methods for applying sorting.
+The extension methods should use generics.
