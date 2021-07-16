@@ -25,11 +25,11 @@ namespace Vega.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<VehicleDTO>> Get([FromQuery] VehicleQueryDTO vehicleQueryDTO)
+        public async Task<QueryResultDTO<VehicleDTO>> Get([FromQuery] VehicleQueryDTO vehicleQueryDTO)
         {
             var vehicleQuery = _mapper.Map<VehicleQuery>(vehicleQueryDTO);
-            var vehicles = await _vehicleRepository.GetAll(vehicleQuery);
-            return _mapper.Map<IEnumerable<VehicleDTO>>(vehicles);
+            var queryResult = await _vehicleRepository.GetAll(vehicleQuery);
+            return _mapper.Map<QueryResultDTO<VehicleDTO>>(queryResult);
         }
 
         [HttpGet("{id}")]

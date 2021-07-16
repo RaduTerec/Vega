@@ -62,9 +62,11 @@ namespace Vega.Persistence
         /// Gets an enumerable of vehicles
         /// </summary>
         /// <param name="vehicleQuery">Filtering and sorting query for vehicles</param>
-        /// <returns><see cref="IEnumerable{Vehicle}"/></returns>
-        public async Task<IEnumerable<Vehicle>> GetAll(VehicleQuery vehicleQuery)
+        /// <returns><see cref="QueryResult{Vehicle}"/></returns>
+        public async Task<QueryResult<Vehicle>> GetAll(VehicleQuery vehicleQuery)
         {
+            var result = new QueryResult<Vehicle>();
+
             var query = _vegaDbContext.Vehicles
                 .Include(v => v.Features)
                     .ThenInclude(vf => vf.Feature)
@@ -85,9 +87,12 @@ namespace Vega.Persistence
             };
 
             query = query.ApplyOrdering(vehicleQuery, columnsMap);
-            query = query.ApplyPaging(vehicleQuery);
+            result.TotalItems = await query.CountAsync();
 
-            return await query.ToListAsync();
+            query = query.ApplyPaging(vehicleQuery);
+            result.Items = await query.ToListAsync();
+
+            return result;
         }
 
         /// <summary>
