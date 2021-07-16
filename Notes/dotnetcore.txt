@@ -18,7 +18,7 @@ Out of scope:
 	* Automated testing
 	* Friendly UI
 	
-https://github.com/mosh-hamedani/vega/commits/master?before=4a09f50a4181d60134a9a816370b52276381c4d9+70&branch=master
+https://github.com/mosh-hamedani/vega/commits/master?before=4a09f50a4181d60134a9a816370b52276381c4d9+35&branch=master
 
 
 	

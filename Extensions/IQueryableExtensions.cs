@@ -10,20 +10,18 @@ namespace vega.Extensions
     {
         public static IQueryable<T> ApplyOrdering<T>(this IQueryable<T> query, ISortQuery sortQuery, Dictionary<string, Expression<Func<T, object>>> columnsMap)
         {
-            if (string.IsNullOrEmpty(sortQuery.SortBy) || !columnsMap.ContainsKey(sortQuery.SortBy.ToLowerInvariant()))
+            if (string.IsNullOrEmpty(sortQuery.SortBy) || !columnsMap.ContainsKey(sortQuery.SortBy))
             {
                 return query;
             }
 
-            string sortBy = sortQuery.SortBy.ToLowerInvariant();
-
             if (sortQuery.IsAscending)
             {
-                return query.OrderBy(columnsMap[sortBy]);
+                return query.OrderBy(columnsMap[sortQuery.SortBy]);
             }
             else
             {
-                return query.OrderByDescending(columnsMap[sortBy]);
+                return query.OrderByDescending(columnsMap[sortQuery.SortBy]);
             }
         }
     }
