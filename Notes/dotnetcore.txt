@@ -685,3 +685,41 @@ Use a dictionary with <string, Expression> to map a column with it's expression 
 
 To make the code reusable, define extension methods for applying sorting.
 The extension methods should use generics.
+
+public static IQueryable<T> ApplyOrdering<T>(this IQueryable<T> query, IQueryObject sortQuery, Dictionary<string, Expression<Func<T, object>>> columnsMap)
+{
+	if (string.IsNullOrEmpty(sortQuery.SortBy) || !columnsMap.ContainsKey(sortQuery.SortBy))
+	{
+		return query;
+	}
+
+	if (sortQuery.IsAscending)
+	{
+		return query.OrderBy(columnsMap[sortQuery.SortBy]);
+	}
+	else
+	{
+		return query.OrderByDescending(columnsMap[sortQuery.SortBy]);
+	}
+}
+
+3. Pagination
+-------------
+Use extension methods for pagination as well.
+
+public static IQueryable<T> ApplyPaging<T>(this IQueryable<T> query, IQueryObject queryObj)
+{
+	if (queryObj.Page <= 0)
+	{
+		queryObj.Page = 1;
+	}
+
+	if (queryObj.PageSize <= 0)
+	{
+		queryObj.PageSize = 10;
+	}
+
+	return query.Skip((queryObj.Page - 1) * queryObj.PageSize).Take(queryObj.PageSize);
+}
+
+Return total number of objects together with IEnumerable<Vehicle> => it requires only 1 SQL statement.
