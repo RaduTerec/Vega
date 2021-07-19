@@ -15,6 +15,7 @@ import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { PaginationComponent } from './shared/pagination.component';
 import { VehicleFormComponent } from './vehicle-form/vehicle-form.component';
 import { VehicleListComponent } from './vehicle-list/vehicle-list.component';
+import { ViewVehicleComponent } from './view-vehicle/view-vehicle.component';
 
 Raven.config('https://0d358e8171024842ad5bfae86bd34a44@o862752.ingest.sentry.io/5822002').install();
 
@@ -24,7 +25,8 @@ Raven.config('https://0d358e8171024842ad5bfae86bd34a44@o862752.ingest.sentry.io/
     NavMenuComponent,
     PaginationComponent,
     VehicleFormComponent,
-    VehicleListComponent
+    VehicleListComponent,
+    ViewVehicleComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -35,7 +37,8 @@ Raven.config('https://0d358e8171024842ad5bfae86bd34a44@o862752.ingest.sentry.io/
     RouterModule.forRoot([
       { path: '', component: VehicleListComponent, pathMatch: 'full' },
       { path: 'vehicles/new', component: VehicleFormComponent },
-      { path: 'vehicles/:id', component: VehicleFormComponent }
+      { path: 'vehicles/edit/:id', component: VehicleFormComponent },
+      { path: 'vehicles/:id', component: ViewVehicleComponent }
     ])
   ],
   providers: [

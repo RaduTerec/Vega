@@ -723,3 +723,11 @@ public static IQueryable<T> ApplyPaging<T>(this IQueryable<T> query, IQueryObjec
 }
 
 Return total number of objects together with IEnumerable<Vehicle> => it requires only 1 SQL statement.
+
+
+
+==================================================================
+Uploading photos
+
+Photos have a different lifetime than other attributes, so they shouldn't be added to the "add vehicle" form.
+For a lot of users it's not intuitive to hit save after uploading a photo. So, photos should be uploaded separately.

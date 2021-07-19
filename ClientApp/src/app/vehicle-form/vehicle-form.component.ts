@@ -35,7 +35,7 @@ export class VehicleFormComponent implements OnInit {
     private vehicleService: VehicleService,
     private toastrService: ToastrService) {
     route.params.subscribe(p => {
-      this.vehicle.id = +p['id'];
+      this.vehicle.id = +p['id'] || 0;
     });
   }
 
@@ -80,30 +80,13 @@ export class VehicleFormComponent implements OnInit {
   }
 
   submit() {
-    if (this.vehicle.id) {
-      this.vehicleService.update(this.vehicle)
-        .subscribe(x => {
-          this.toastrService.success("The vehicle was updated successfully", "Success", {
-            timeOut: 5000
-          });
-        })
-    }
-    else {
-      this.vehicleService.create(this.vehicle)
-      .subscribe(x => console.log(x));
-    }
-
-    this.vehicleService.create(this.vehicle)
-      .subscribe(x => console.log(x));
-  }
-
-  delete() {
-    if (confirm("Are you sure?")) {
-      this.vehicleService.delete(this.vehicle.id)
-        .subscribe(x => {
-          this.router.navigate(['/']);
-        });
-    }
+    var result = (this.vehicle.id) ? this.vehicleService.update(this.vehicle) : this.vehicleService.create(this.vehicle); 
+    result.subscribe(vehicle => {
+      this.toastrService.success("The vehicle was updated successfully", "Success", {
+        timeOut: 5000
+      });
+      this.router.navigate(['/vehicles/', this.vehicle.id])
+    });
   }
 
   private setVehicle(v: Vehicle) {
