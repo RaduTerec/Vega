@@ -18,6 +18,7 @@ namespace Vega.Core.Models
 
         [Required]
         public ICollection<VehicleFeature> Features { get; }
+        public ICollection<Photo> Photos { get; }
 
         [Required]
         [StringLength(255)]
@@ -36,6 +37,7 @@ namespace Vega.Core.Models
         public Vehicle()
         {
             Features = new Collection<VehicleFeature>();
+            Photos = new Collection<Photo>();
         }
     }
 }
