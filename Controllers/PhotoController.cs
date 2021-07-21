@@ -1,11 +1,11 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Vega.Controllers.DataTransferObjects;
 using Vega.Core;
 using Vega.Core.Models;
@@ -16,18 +16,17 @@ namespace Vega.Controllers
     [Route("api/vehicle/{vehicleId}/photos")]
     public class PhotoController : ControllerBase
     {
-        private readonly int MAX_BYTES = 10 * 1024 * 1024;
-        private readonly string[] ACCEPTED_FILE_TYPES = new[] { ".jpg", ".jpeg", ".png" };
         private readonly IWebHostEnvironment webHostEnvironment;
         private readonly IMapper mapper;
+        private readonly PhotoSettings photoSettings;
         private readonly IVehicleRepository vehicleRepository;
         private readonly IUnitOfWork unitOfWork;
 
-
-        public PhotoController(IWebHostEnvironment webHostEnvironment, IMapper mapper, IVehicleRepository vehicleRepository, IUnitOfWork unitOfWork)
+        public PhotoController(IWebHostEnvironment webHostEnvironment, IMapper mapper, IOptionsSnapshot<PhotoSettings> options, IVehicleRepository vehicleRepository, IUnitOfWork unitOfWork)
         {
-            this.mapper = mapper;
             this.webHostEnvironment = webHostEnvironment;
+            this.mapper = mapper;
+            this.photoSettings = options.Value;
             this.vehicleRepository = vehicleRepository;
             this.unitOfWork = unitOfWork;
         }
@@ -40,8 +39,8 @@ namespace Vega.Controllers
             if (vehicle == default) return BadRequest($"Could not find vehicle with {vehicleId}.");
             if (file == null) return BadRequest("No file");
             if (file.Length == 0) return BadRequest("Empty file");
-            if (file.Length > MAX_BYTES) return BadRequest("Max file size exceeded");
-            if (!ACCEPTED_FILE_TYPES.Any(ft => ft == Path.GetExtension(file.FileName))) return BadRequest("Invalid file type.");
+            if (file.Length > photoSettings.MaxBytes) return BadRequest("Max file size exceeded");
+            if (!photoSettings.IsSupported(file.FileName)) return BadRequest("Invalid file type.");
 
             var uploadPath = Path.Combine(webHostEnvironment.WebRootPath, "uploads");
             if (!Directory.Exists(uploadPath))
