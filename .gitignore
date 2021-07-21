@@ -10,6 +10,9 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+# Uploads folder
+/wwwroot/uploads
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

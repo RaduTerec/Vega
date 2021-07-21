@@ -15,6 +15,7 @@ namespace Vega.Mappings
             CreateMap<Make, KeyValuePairDTO>();
             CreateMap<Model, KeyValuePairDTO>();
             CreateMap<Feature, KeyValuePairDTO>();
+            CreateMap<Photo, PhotoDTO>();
             CreateMap<Vehicle, SaveVehicleDTO>()
                 .ForMember(vDto => vDto.Contact, opt => opt.MapFrom(v => new ContactDTO
                 {

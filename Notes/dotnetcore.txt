@@ -731,3 +731,10 @@ Uploading photos
 
 Photos have a different lifetime than other attributes, so they shouldn't be added to the "add vehicle" form.
 For a lot of users it's not intuitive to hit save after uploading a photo. So, photos should be uploaded separately.
+
+Notes
+	a. To receive a file using POST use `IFormFile`. To upload several files use `IFormCollection`.
+	b. To get info about HostingEnvironment use: IHostingEnvironment
+!!!	c. Never trust a filename a user sends, because it can be subject to CSRF.
+	d. Use GUID for new filenames + old filename extension.
+	
