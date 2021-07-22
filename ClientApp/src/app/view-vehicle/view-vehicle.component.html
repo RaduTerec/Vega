@@ -2,15 +2,15 @@
 <div>
 
   <!-- Nav tabs -->
-  <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active"><a href="#basic" aria-controls="basic" role="tab" data-toggle="tab">Vehicle</a></li>
-    <li role="presentation"><a href="#photos" aria-controls="photos" role="tab" data-toggle="tab">Photos</a></li>
+  <ul class="nav nav-tabs">
+    <li class="nav-item"><a class="nav-link active" id="vehicle-tab" data-toggle="tab" href="#vehicle" role="tab" aria-controls="vehicle" aria-selected="true">Vehicle</a></li>
+    <li class="nav-item"><a class="nav-link" id="photos-tab" data-toggle="tab" href="#photos" role="tab" aria-controls="photos" aria-selected="false">Photos</a></li>
   </ul>
 
   <!-- Tab panes -->
   <div class="tab-content" *ngIf="vehicle">
     <!-- Vehicle tab -->
-    <div role="tabpanel" class="tab-pane active" id="basic">
+    <div class="tab-pane fade show active" id="vehicle" role="tabpanel" aria-labelledby="vehicle-tab">
       <h2>Basics</h2>
       <ul>
         <li>Make: {{ vehicle.make.name }}</li>
@@ -31,12 +31,13 @@
       <p>
         <a class="btn btn-primary" [routerLink]="['/vehicles/edit/', vehicle.id]">Edit</a>
         <button class="btn btn-danger" (click)="delete()">Delete</button>
-        <a class="btn btn-default" [routerLink]="['/vehicles']">View All Vehicles</a>
-      </p>
+        <a class="btn btn-default" [routerLink]="['/']">View All Vehicles</a>
+      </p>      
     </div>
     <!-- Photos tab -->
-    <div role="tabpanel" class="tab-pane" id="photos">
+    <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photo-tab">
       <h2>Photos</h2>
+      <input type="file" (change)="uploadPhoto()" #fileInput> 
     </div>
   </div>
 </div>
