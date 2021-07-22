@@ -729,6 +729,8 @@ Return total number of objects together with IEnumerable<Vehicle> => it requires
 ==================================================================
 Uploading photos
 
+1. Upload Api
+-------------
 Photos have a different lifetime than other attributes, so they shouldn't be added to the "add vehicle" form.
 For a lot of users it's not intuitive to hit save after uploading a photo. So, photos should be uploaded separately.
 
@@ -738,3 +740,15 @@ Notes
 !!!	c. Never trust a filename a user sends, because it can be subject to CSRF.
 	d. Use GUID for new filenames + old filename extension.
 	
+2. Using configuration
+----------------------
+The settings in .NET Core are stored as JSON strings.
+To read them, use 
+	services.Configure<PhotoSettings>(Configuration.GetSection("PhotoSettings"));
+
+To use them, inject `IOptionsSnapshot<PhotoSettings> options` in the constructor:
+    public PhotosController(IHostingEnvironment host, IVehicleRepository repository, IUnitOfWork unitOfWork, IMapper mapper, IOptionsSnapshot<PhotoSettings> options)
+    {
+		this.photoSettings = options.Value;
+		
+		

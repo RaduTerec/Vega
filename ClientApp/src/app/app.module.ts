@@ -10,6 +10,7 @@ import { ToastrModule } from 'ngx-toastr';
 
 import { AppErrorHandler } from './app.error-handler';
 import { VehicleService } from './services/vehicle.service';
+import { PhotoService } from './services/photo.service';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { PaginationComponent } from './shared/pagination.component';
@@ -43,7 +44,8 @@ Raven.config('https://0d358e8171024842ad5bfae86bd34a44@o862752.ingest.sentry.io/
   ],
   providers: [
     { provide: ErrorHandler, useClass: AppErrorHandler },
-    VehicleService
+    VehicleService,
+    PhotoService
   ],
   bootstrap: [AppComponent]
 })
