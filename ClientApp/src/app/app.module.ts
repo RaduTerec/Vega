@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 import { ErrorHandler } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { AppErrorHandler } from './app.error-handler';
 import { VehicleService } from './services/vehicle.service';
@@ -40,7 +41,8 @@ Raven.config('https://0d358e8171024842ad5bfae86bd34a44@o862752.ingest.sentry.io/
       { path: 'vehicles/new', component: VehicleFormComponent },
       { path: 'vehicles/edit/:id', component: VehicleFormComponent },
       { path: 'vehicles/:id', component: ViewVehicleComponent }
-    ])
+    ]),
+    NgbModule,
   ],
   providers: [
     { provide: ErrorHandler, useClass: AppErrorHandler },

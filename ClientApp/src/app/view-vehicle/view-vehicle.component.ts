@@ -1,7 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { any } from 'underscore';
 import { PhotoService } from '../services/photo.service';
 import { VehicleService } from '../services/vehicle.service';
 
@@ -14,6 +13,7 @@ export class ViewVehicleComponent implements OnInit {
   @ViewChild('fileInput', {static : false}) fileInput: ElementRef;
   vehicle: any;
   vehicleId: number; 
+  active = 1;
 
   constructor(
     private route: ActivatedRoute, 
