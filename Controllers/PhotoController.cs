@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -16,33 +17,48 @@ namespace Vega.Controllers
     [Route("api/vehicle/{vehicleId}/photos")]
     public class PhotoController : ControllerBase
     {
-        private readonly IWebHostEnvironment webHostEnvironment;
-        private readonly IMapper mapper;
-        private readonly PhotoSettings photoSettings;
-        private readonly IVehicleRepository vehicleRepository;
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IMapper _mapper;
+        private readonly PhotoSettings _photoSettings;
+        private readonly IVehicleRepository _vehicleRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IPhotoRepository _photoRepository;
 
-        public PhotoController(IWebHostEnvironment webHostEnvironment, IMapper mapper, IOptionsSnapshot<PhotoSettings> options, IVehicleRepository vehicleRepository, IUnitOfWork unitOfWork)
+        public PhotoController(IWebHostEnvironment webHostEnvironment,
+                                IMapper mapper,
+                                IOptionsSnapshot<PhotoSettings> options,
+                                IVehicleRepository vehicleRepository,
+                                IPhotoRepository photoRepository,
+                                IUnitOfWork unitOfWork)
         {
-            this.webHostEnvironment = webHostEnvironment;
-            this.mapper = mapper;
-            this.photoSettings = options.Value;
-            this.vehicleRepository = vehicleRepository;
-            this.unitOfWork = unitOfWork;
+            _photoRepository = photoRepository;
+            _webHostEnvironment = webHostEnvironment;
+            _mapper = mapper;
+            _photoSettings = options.Value;
+            _vehicleRepository = vehicleRepository;
+            _unitOfWork = unitOfWork;
+        }
+
+        [HttpGet]
+        public async Task<IEnumerable<PhotoDTO>> GetPhotos(int vehicleId)
+        {
+            var photos = await _photoRepository.GetPhotos(vehicleId);
+
+            return _mapper.Map<IEnumerable<PhotoDTO>>(photos);
         }
 
         [HttpPost]
         public async Task<IActionResult> Upload(long vehicleId, IFormFile file)
         {
-            var vehicle = await vehicleRepository.Get(vehicleId);
+            var vehicle = await _vehicleRepository.Get(vehicleId);
 
             if (vehicle == default) return BadRequest($"Could not find vehicle with {vehicleId}.");
             if (file == null) return BadRequest("No file");
             if (file.Length == 0) return BadRequest("Empty file");
-            if (file.Length > photoSettings.MaxBytes) return BadRequest("Max file size exceeded");
-            if (!photoSettings.IsSupported(file.FileName)) return BadRequest("Invalid file type.");
+            if (file.Length > _photoSettings.MaxBytes) return BadRequest("Max file size exceeded");
+            if (!_photoSettings.IsSupported(file.FileName)) return BadRequest("Invalid file type.");
 
-            var uploadPath = Path.Combine(webHostEnvironment.WebRootPath, "uploads");
+            var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
             if (!Directory.Exists(uploadPath))
             {
                 Directory.CreateDirectory(uploadPath);
@@ -57,9 +73,9 @@ namespace Vega.Controllers
 
             var photo = new Photo { FileName = fileName };
             vehicle.Photos.Add(photo);
-            await unitOfWork.Complete();
+            await _unitOfWork.Complete();
 
-            return Ok(mapper.Map<PhotoDTO>(photo));
+            return Ok(_mapper.Map<PhotoDTO>(photo));
         }
     }
 }

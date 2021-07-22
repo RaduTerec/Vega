@@ -10,37 +10,41 @@ import { VehicleService } from '../services/vehicle.service';
   styleUrls: ['./view-vehicle.component.css']
 })
 export class ViewVehicleComponent implements OnInit {
-  @ViewChild('fileInput', {static : false}) fileInput: ElementRef;
+  @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
   vehicle: any;
-  vehicleId: number; 
+  vehicleId: number;
+  photos: any;
   active = 1;
 
   constructor(
-    private route: ActivatedRoute, 
+    private route: ActivatedRoute,
     private router: Router,
     private toastrService: ToastrService,
     private vehicleService: VehicleService,
-    private photoService: PhotoService) { 
+    private photoService: PhotoService) {
 
     route.params.subscribe(p => {
       this.vehicleId = +p['id'];
       if (isNaN(this.vehicleId) || this.vehicleId <= 0) {
         router.navigate(['/']);
-        return; 
+        return;
       }
     });
   }
 
-  ngOnInit() { 
+  ngOnInit() {
     this.vehicleService.getVehicle(this.vehicleId)
       .subscribe(
         v => this.vehicle = v,
         err => {
           if (err.status == 404) {
             this.router.navigate(['/']);
-            return; 
+            return;
           }
         });
+
+    this.photoService.getPhotos(this.vehicleId)
+      .subscribe(photos => this.photos = photos);
   }
 
   delete() {
@@ -56,7 +60,9 @@ export class ViewVehicleComponent implements OnInit {
     var nativeElement: HTMLInputElement = this.fileInput.nativeElement;
 
     this.photoService.upload(this.vehicleId, nativeElement.files[0])
-      .subscribe(x => console.log(x));
+      .subscribe(photo => {
+        this.photos.push(photo);
+      });
   }
 
 }
