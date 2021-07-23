@@ -1,3 +1,4 @@
+import { HttpEventType } from '@angular/common/http';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -14,6 +15,7 @@ export class ViewVehicleComponent implements OnInit {
   vehicle: any;
   vehicleId: number;
   photos: any;
+  progress: number;
   active = 1;
 
   constructor(
@@ -22,6 +24,8 @@ export class ViewVehicleComponent implements OnInit {
     private toastrService: ToastrService,
     private vehicleService: VehicleService,
     private photoService: PhotoService) {
+
+    this.progress = 0;
 
     route.params.subscribe(p => {
       this.vehicleId = +p['id'];
@@ -60,9 +64,18 @@ export class ViewVehicleComponent implements OnInit {
     var nativeElement: HTMLInputElement = this.fileInput.nativeElement;
 
     this.photoService.upload(this.vehicleId, nativeElement.files[0])
-      .subscribe(photo => {
-        this.photos.push(photo);
-      });
+      .subscribe(resp => {
+        this.photos.push(resp);
+
+        if (resp.type === HttpEventType.Response) {
+          console.log('Upload complete');
+        }
+        if (resp.type === HttpEventType.UploadProgress) {
+          var percentDone = Math.round(100 * resp.loaded / resp.total);
+          console.log('Progress ' + percentDone + '%');
+          this.progress = percentDone;
+        };
+      })
   }
 
 }

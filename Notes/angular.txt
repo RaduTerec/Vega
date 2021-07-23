@@ -126,3 +126,10 @@ Use the class to pass state between calls. Eg use filter.make to remember what t
 Use client-side filtering for data with at most a couple hundred records. It's very fast, but can get out of hands for large data.
 To apply filtering, at init store the whole list in a safe variable. Apply filtering on that list and assign the result.
 See commit "client-side filtering".
+
+Uploading files
+---------------
+
+Upload information is found in: `XMLHttpRequest`
+To get the upload information during a post message, write this service:
+
