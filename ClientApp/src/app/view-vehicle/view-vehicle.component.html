@@ -1,8 +1,8 @@
 <h1>Vehicle</h1>
-<ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs" *ngIf="vehicle">
+<ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
   <li [ngbNavItem]="1">
     <a ngbNavLink>Basics</a>
-    <div ngbNavContent>
+    <ng-template ngbNavContent *ngIf="vehicle">
       <h2>Basics</h2>
       <ul>
         <li>Make: {{ vehicle.make.name }}</li>
@@ -25,15 +25,16 @@
         <button class="btn btn-danger" (click)="delete()">Delete</button>
         <a class="btn btn-default" [routerLink]="['/']">View All Vehicles</a>
       </p>
-    </div>
+    </ng-template>
   </li>
   <li [ngbNavItem]="2">
     <a ngbNavLink>Photos</a>
-    <div ngbNavContent>
+    <ng-template ngbNavContent *ngIf="vehicle">
       <h2>Photos</h2>
       <input type="file" (change)="uploadPhoto()" #fileInput>
       <img *ngFor="let photo of photos" src="/uploads/{{ photo.fileName }}" class="img-thumbnail">
-    </div>
+    </ng-template>
   </li>
 </ul>
 
+<div [ngbNavOutlet]="nav" class="mt-2"></div>
