@@ -1,7 +1,8 @@
 import { HttpEventType } from '@angular/common/http';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
 import { PhotoService } from '../services/photo.service';
 import { VehicleService } from '../services/vehicle.service';
 
@@ -15,18 +16,17 @@ export class ViewVehicleComponent implements OnInit {
   vehicle: any;
   vehicleId: number;
   photos: any;
-  progress: number;
+  uploadProgress: number;
   active = 1;
+  uploadSub: Subscription;
 
   constructor(
+    private zone: NgZone,
     private route: ActivatedRoute,
     private router: Router,
     private toastrService: ToastrService,
     private vehicleService: VehicleService,
     private photoService: PhotoService) {
-
-    this.progress = 0;
-
     route.params.subscribe(p => {
       this.vehicleId = +p['id'];
       if (isNaN(this.vehicleId) || this.vehicleId <= 0) {
@@ -63,19 +63,21 @@ export class ViewVehicleComponent implements OnInit {
   uploadPhoto() {
     var nativeElement: HTMLInputElement = this.fileInput.nativeElement;
 
-    this.photoService.upload(this.vehicleId, nativeElement.files[0])
-      .subscribe(resp => {
-        this.photos.push(resp);
+    var upload = this.photoService.upload(this.vehicleId, nativeElement.files[0]);
 
-        if (resp.type === HttpEventType.Response) {
-          console.log('Upload complete');
-        }
+    this.uploadSub = upload.subscribe(resp => {
+      this.zone.run(() => {
         if (resp.type === HttpEventType.UploadProgress) {
           var percentDone = Math.round(100 * resp.loaded / resp.total);
-          console.log('Progress ' + percentDone + '%');
-          this.progress = percentDone;
-        };
-      })
+          this.uploadProgress = percentDone;
+        }
+      });
+    })
   }
 
+  cancelUpload() {
+    this.uploadSub.unsubscribe();
+    this.uploadProgress = null;
+    this.uploadSub = null;
+  }
 }

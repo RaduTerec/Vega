@@ -131,5 +131,37 @@ Uploading files
 ---------------
 
 Upload information is found in: `XMLHttpRequest`
-To get the upload information during a post message, write this service:
+To get the upload information during a post message, decorate post message with:
 
+return this.http.post(`/api/vehicle/${vehicleId}/photos`, formData, {
+      reportProgress: true,
+      observe: 'events',
+    });
+	
+In the code for the file upload:
+
+uploadPhoto() {
+    var nativeElement: HTMLInputElement = this.fileInput.nativeElement;
+
+    var upload = this.photoService.upload(this.vehicleId, nativeElement.files[0]);
+
+    this.uploadSub = upload.subscribe(resp => {
+      this.zone.run(() => {
+        if (resp.type === HttpEventType.UploadProgress) {
+          var percentDone = Math.round(100 * resp.loaded / resp.total);
+          console.log('Progress ' + percentDone + '%');
+          this.uploadProgress = percentDone;
+        }
+      });
+    })
+  }
+
+  cancelUpload() {
+    this.uploadSub.unsubscribe();
+    this.reset();
+  }
+
+  reset() {
+    this.uploadProgress = null;
+    this.uploadSub = null;
+  }
