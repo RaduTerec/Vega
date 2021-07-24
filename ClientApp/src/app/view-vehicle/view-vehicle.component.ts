@@ -62,8 +62,10 @@ export class ViewVehicleComponent implements OnInit {
 
   uploadPhoto() {
     var nativeElement: HTMLInputElement = this.fileInput.nativeElement;
+    var file = nativeElement.files[0];
+    nativeElement.value = '';
 
-    var upload = this.photoService.upload(this.vehicleId, nativeElement.files[0]);
+    var upload = this.photoService.upload(this.vehicleId, file);
 
     this.uploadSub = upload.subscribe(resp => {
       this.zone.run(() => {
@@ -71,12 +73,19 @@ export class ViewVehicleComponent implements OnInit {
           var percentDone = Math.round(100 * resp.loaded / resp.total);
           this.uploadProgress = percentDone;
         }
+        if (resp.type === HttpEventType.Response) {
+          this.reset();
+        }
       });
     })
   }
 
   cancelUpload() {
     this.uploadSub.unsubscribe();
+    this.reset();
+  }
+
+  reset() {
     this.uploadProgress = null;
     this.uploadSub = null;
   }

@@ -9,17 +9,17 @@ export class AppErrorHandler implements ErrorHandler {
     }
 
     handleError(error: any): void {
-        if (!isDevMode()) {
-            Raven.captureException(error.originalError || error);
-        }
-        else {
-            throw error;
-        }
-
         this.ngZone.run(() => {
             this.toastrService.error("Unexpected error", "Error " + error.status, {
                 timeOut: 5000
             });
         });
+
+        if (!isDevMode()) {
+            Raven.captureException(error.originalError || error);
+        }
+        else {
+            throw error;
+        }        
     }
 }
