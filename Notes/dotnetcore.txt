@@ -142,6 +142,9 @@ More information about EF Tools https://docs.microsoft.com/en-us/ef/core/cli/dot
 To install EF Core Cli tools run:
 	* dotnet tool install --global dotnet-ef
 	
+To update EF Core Cli tools run:
+	* dotnet tool update --global dotnet-ef
+	
 After installing the tools, open VS Code in the working folder, open terminal and install following packages to your project:
 	* dotnet add package Microsoft.EntityFrameworkCore.Design
 
@@ -752,3 +755,164 @@ To use them, inject `IOptionsSnapshot<PhotoSettings> options` in the constructor
 		this.photoSettings = options.Value;
 		
 		
+==================================================================
+Authentication and authorization
+
+Use: https://codewithmukesh.com/blog/aspnet-core-api-with-jwt-authentication/
+and https://medium.com/c-sharp-progarmming/asp-net-core-5-jwt-authentication-tutorial-with-example-api-aa59e80d02da
+
+On the server:
+	- protect API endpoints
+	- define roles
+
+On the client:
+	- protect routes
+	- show/hide DOM elements based on roles
+
+1. Architecture
+---------------
+The client authenticates using username & password => the server responds with a JWT (JSON Web Token).
+The JWT is signed and contains some basic data which can be used on further requests.
+For each protected API call (use `Authorize` decorator), the server will determine the users' permissions based on JWT.
+
+JWT is privately signed on the server using the servers' certificate.
+
+Traditional Authentication		|		Modern Authentication
+								|
+* Authentication tickets		|	* JSON Web Tokens
+* Sent using cookies			|	* Sent in the request header
+								|	* Stored in the local storage
+								
+The modern authentication can be used for other types of clients like iOS or Android apps.
+
+Infrastructure:
+	* Registration form
+	* Login form
+	* Generate and validate tokens
+	* Control access to API endpoints
+	
+2. JWT Structure
+----------------
+	* Header =  Contains the details on type of Token (JWT) + the algorithm used to sign the token (eg RSA, SHA256)
+	* Payload = (most important part) contains the claims, which is the data we are trying to secure. Claims are details about the user, expiration time of the token, etc
+	* Signature = it is an encryption between the header, payload and a secret key.
+
+Visit https://jwt.io/#debugger-io to decode, verify and play around with JSON Web Tokens
+	
+3. Dependencies
+---------------
+Install nugget packages:
+	dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+	dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+	dotnet restore
+	
+If you decide to use auth0, install npm packages:
+	npm install auth0-lock angular2-jwt --save (?)
+	
+4. Implementation
+-----------------
+a) Configure settings you want added to your user:
+To see the default options, visit: https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity.entityframeworkcore.identityuser?view=aspnetcore-1.1
+
+	public class VegaUser : IdentityUser
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+	
+b) Change the type of the DB Context to `IdentityDbContext<VegaUser>`. Make sure you call `base.OnModelCreating(modelBuilder);` in the overriden method:
+
+	public class VegaDbContext : IdentityDbContext<VegaUser>
+    {
+        //DBSets
+
+        public VegaDbContext(DbContextOptions<VegaDbContext> options)
+            : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);            
+            // fluent relationships
+        }
+    }
+	
+c) Seed the database with User roles and a user.
+
+
+a) Add the JWT details to app config
+	"JWTSettings": {
+		"key": "C2CF5C8EA3F2448D8498DE4F55CA4",
+		"Issuer": "VegaSecureApi",
+		"Audience": "VegaUser",
+		"DurationInMinutes": 30
+	  },
+
+b) Add a class to read those settings
+
+
+d) Create a user service for functions like Register, Generate JWT
+
+	public interface IUserService
+    {
+    }
+
+	public class UserService : IUserService
+    {
+        private readonly UserManager<VegaUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly JWTSettings _jwtSettings;
+        public UserService(UserManager<VegaUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWTSettings> jwtSettings)
+        {
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _jwtSettings = jwtSettings.Value;
+        }
+    }
+	
+
+	
+
+f) Configure Startup.cs
+In the `Configure` method, between routing and endpoints, add:
+
+	app.UseAuthentication();
+	app.UseAuthorization();
+	
+We have to authenticate users before we can authorize anything, so keep the order above.
+In the `ConfigureServices` method, add:
+
+			services.Configure<JWTSettings>(Configuration.GetSection("JWT"));
+
+            // User manager services
+            services.AddIdentity<VegaUser, IdentityRole>().AddEntityFrameworkStores<VegaDbContext>();
+            services.AddScoped<IUserService, UserService>();
+			
+			// other services
+			
+			// DB Context
+			
+			//Adding Athentication - JWT
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(o =>
+                {
+                    o.RequireHttpsMetadata = false;
+                    o.SaveToken = false;
+                    o.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero,
+                        ValidIssuer = Configuration["JWT:Issuer"],
+                        ValidAudience = Configuration["JWT:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Key"]))
+                    };
+                });
+	
