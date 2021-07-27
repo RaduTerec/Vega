@@ -816,8 +816,8 @@ To see the default options, visit: https://docs.microsoft.com/en-us/dotnet/api/m
 
 	public class VegaUser : IdentityUser
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        [StringLength(255)]
+        public string Name { get; set; }
     }
 	
 b) Change the type of the DB Context to `IdentityDbContext<VegaUser>`. Make sure you call `base.OnModelCreating(modelBuilder);` in the overriden method:
@@ -841,7 +841,7 @@ b) Change the type of the DB Context to `IdentityDbContext<VegaUser>`. Make sure
 c) Seed the database with User roles and a user.
 
 
-a) Add the JWT details to app config
+d) Add the JWT details to app config
 	"JWTSettings": {
 		"key": "C2CF5C8EA3F2448D8498DE4F55CA4",
 		"Issuer": "VegaSecureApi",
@@ -849,10 +849,10 @@ a) Add the JWT details to app config
 		"DurationInMinutes": 30
 	  },
 
-b) Add a class to read those settings
+e) Add a class to read those settings
 
 
-d) Create a user service for functions like Register, Generate JWT
+f) Create a user service for functions like Register, Generate JWT
 
 	public interface IUserService
     {
@@ -872,9 +872,7 @@ d) Create a user service for functions like Register, Generate JWT
     }
 	
 
-	
-
-f) Configure Startup.cs
+g) Configure Startup.cs
 In the `Configure` method, between routing and endpoints, add:
 
 	app.UseAuthentication();

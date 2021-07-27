@@ -9,8 +9,8 @@ using Vega.Persistence;
 namespace Vega.Migrations
 {
     [DbContext(typeof(VegaDbContext))]
-    [Migration("20210726190105_AddUsersAndRoles")]
-    partial class AddUsersAndRoles
+    [Migration("20210727142954_UsersAndRoles")]
+    partial class UsersAndRoles
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -240,17 +240,15 @@ namespace Vega.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<string>("FirstName")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("longtext");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
