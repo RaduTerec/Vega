@@ -38,6 +38,7 @@ namespace Vega.Mappings
 
             // API to Domain
             CreateMap<VehicleQueryDTO, VehicleQuery>();
+            CreateMap<UserDTO, VegaUser>();
             CreateMap<SaveVehicleDTO, Vehicle>()
                 .ForMember(v => v.Id, opt => opt.Ignore())
                 .ForMember(v => v.ContactName, opt => opt.MapFrom(vDto => vDto.Contact.Name))

@@ -892,7 +892,7 @@ The Guids can be obtained by running `Console.WriteLine(Guid.NewGuid());`.
 	}
 
 
-d) Add the JWT details to app config
+d) Add the JWT details to app config and add a class to read those settings.
 	"JWTSettings": {
 		"key": "C2CF5C8EA3F2448D8498DE4F55CA4",
 		"Issuer": "VegaSecureApi",
@@ -900,30 +900,66 @@ d) Add the JWT details to app config
 		"DurationInMinutes": 30
 	  },
 
-e) Add a class to read those settings
+Then, in Startup.cs register those settings using:
+	services.Configure<JWTSettings>(Configuration.GetSection("JWTSettings"));
 
 
-f) Create a user service for functions like Register, Generate JWT
+e) Define a UserController with methods to register a new user and to login. You should only register a regular user. You may anytime change the role of the user from the DB directly.
+The login method should return an authentication response which contains the token used in further calls.
 
-	public interface IUserService
-    {
-    }
+	public UserController(UserManager<VegaUser> userManager, IMapper mapper, IOptions<JWTSettings> jwtSettings)
+	{
+		_userManager = userManager;
+		_mapper = mapper;
+		_jwtSettings = jwtSettings.Value;
+	}
 
-	public class UserService : IUserService
-    {
-        private readonly UserManager<VegaUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly JWTSettings _jwtSettings;
-        public UserService(UserManager<VegaUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWTSettings> jwtSettings)
-        {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _jwtSettings = jwtSettings.Value;
-        }
-    }
+	[HttpPost]
+	public async Task<IActionResult> Register(UserDTO userDto)
+	{
+		var user = _mapper.Map<VegaUser>(userDto);
+
+		var userWithSameEmail = await _userManager.FindByEmailAsync(userDto.Email);
+		if (userWithSameEmail != null)
+		{
+			return BadRequest($"User with {userDto.Email} is already registered");
+		}
+
+		var result = await _userManager.CreateAsync(user, userDto.Password);
+		if (result.Succeeded)
+		{
+			await _userManager.AddToRoleAsync(user, DefaultRole);
+		}
+
+		return Ok(userDto);
+	}
+
+	[HttpPut]
+	public async Task<IActionResult> Login(LoginDTO login)
+	{
+		var authenticationResponse = new AuthenticationResponseDTO();
+		var user = await _userManager.FindByEmailAsync(login.Email);
+		if (user == null)
+		{
+			return BadRequest($"Could not authenticate {login.Email}");
+		}
+
+		if (await _userManager.CheckPasswordAsync(user, login.Password))
+		{
+			var jwtSecurityToken = await CreateJwtToken(user);
+			authenticationResponse.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+			authenticationResponse.Email = user.Email;
+			authenticationResponse.UserName = user.UserName;
+			var rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
+			authenticationResponse.Roles = rolesList.ToList();
+			return Ok(authenticationResponse);
+		}            
+		
+		return BadRequest($"Could not authenticate {login.Email}");
+	}
 	
 
-g) Configure Startup.cs
+f) Configure Startup.cs
 In the `Configure` method, between routing and endpoints, add:
 
 	app.UseAuthentication();
@@ -932,36 +968,36 @@ In the `Configure` method, between routing and endpoints, add:
 We have to authenticate users before we can authorize anything, so keep the order above.
 In the `ConfigureServices` method, add:
 
-			services.Configure<JWTSettings>(Configuration.GetSection("JWT"));
+	services.Configure<JWTSettings>(Configuration.GetSection("JWT"));
 
-            // User manager services
-            services.AddIdentity<VegaUser, IdentityRole>().AddEntityFrameworkStores<VegaDbContext>();
-            services.AddScoped<IUserService, UserService>();
-			
-			// other services
-			
-			// DB Context
-			
-			//Adding Athentication - JWT
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-                .AddJwtBearer(o =>
-                {
-                    o.RequireHttpsMetadata = false;
-                    o.SaveToken = false;
-                    o.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ClockSkew = TimeSpan.Zero,
-                        ValidIssuer = Configuration["JWT:Issuer"],
-                        ValidAudience = Configuration["JWT:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Key"]))
-                    };
-                });
+	// User manager services
+	services.AddIdentity<VegaUser, IdentityRole>().AddEntityFrameworkStores<VegaDbContext>();
+	services.AddScoped<IUserService, UserService>();
+	
+	// other services
+	
+	// DB Context
+	
+	//Adding Athentication - JWT
+	services.AddAuthentication(options =>
+	{
+		options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+		options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+	})
+		.AddJwtBearer(o =>
+		{
+			o.RequireHttpsMetadata = false;
+			o.SaveToken = false;
+			o.TokenValidationParameters = new TokenValidationParameters
+			{
+				ValidateIssuerSigningKey = true,
+				ValidateIssuer = true,
+				ValidateAudience = true,
+				ValidateLifetime = true,
+				ClockSkew = TimeSpan.Zero,
+				ValidIssuer = Configuration["JWT:Issuer"],
+				ValidAudience = Configuration["JWT:Audience"],
+				IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Key"]))
+			};
+		});
 	
