@@ -1001,3 +1001,8 @@ In the `ConfigureServices` method, add:
 			};
 		});
 	
+g) Write the client side:
+	* authentication service which calls the Api
+	* a userController which allows the user to enter his login / register a new user
+	* integrate userController and service in app.module.ts and path.
+See: https://mdbootstrap.com/docs/standard/extended/login/#!

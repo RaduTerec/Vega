@@ -55,7 +55,7 @@
   </div>
   <div class="form-group">
     <label for="contactMail">Email</label>
-    <input type="text" id="contactMail" class="form-control" [(ngModel)]="vehicle.contact.email" name="contactEmail"
+    <input type="email" id="contactMail" class="form-control" [(ngModel)]="vehicle.contact.email" name="contactEmail"
       required #contactEmail="ngModel">
     <div class="alert alert-danger" *ngIf="contactEmail.touched && !contactEmail.valid">Please specify the contact
       email.</div>
