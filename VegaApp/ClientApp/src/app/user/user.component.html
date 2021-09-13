@@ -11,7 +11,7 @@
 
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" class="form-control" [(ngModel)]="userData.name" name="Username"
+                    <input type="text" id="username" class="form-control" [(ngModel)]="userData.Username" name="Username"
                         #username="ngModel">
                 </div>
 
@@ -35,7 +35,7 @@
                     <div class="alert alert-danger" *ngIf="password != confirmPassword">The passwords do not match</div>
                 </div>
 
-                <button class="btn btn-primary" [disabled]="!f.valid">Register</button>
+                <button class="btn btn-primary" [disabled]="!registerForm.valid">Register</button>
             </form>
         </div>
         <div class="col">
@@ -55,7 +55,7 @@
                     <div class="alert alert-danger" *ngIf="password.touched && !password.valid">Password is required.</div>
                 </div>
 
-                <button class="btn btn-primary" [disabled]="!f.valid">Login</button>
+                <button class="btn btn-primary" [disabled]="!loginForm.valid">Login</button>
             </form>
         </div>
     </div>

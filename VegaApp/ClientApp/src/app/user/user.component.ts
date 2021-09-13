@@ -9,8 +9,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./user.component.css']
 })
 export class UserComponent implements OnInit {
-  userData: User;
-  loginData: Login;
+  userData: User = {name: "", username: "", email: "", password: ""};
+  loginData: Login = { email: "", password: ""};
 
   constructor(private authService: AuthenticationService) { }
 
