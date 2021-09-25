@@ -1006,3 +1006,54 @@ g) Write the client side:
 	* a userController which allows the user to enter his login / register a new user
 	* integrate userController and service in app.module.ts and path.
 See: https://mdbootstrap.com/docs/standard/extended/login/#!
+
+
+==================================================================
+Unit tests
+
+We do not test repository classes, models, unit of work.
+We test controller classes.
+See: https://www.dotnetcurry.com/aspnet-core/1414/unit-testing-aspnet-core
+
+To test a whole flow we should use integration tests, end–to-end tests and load tests.
+
+Each test class should follow: Arrange, Act, Assert
+The naming should follow: Method_Returns_When
+Each test should run independently from all other tests.
+
+Example:
+
+[Test]
+public async Task TestGet_ReturnsVehicle_WhenIdExists()
+{
+	// Arrange
+	var vehicleController = CreateDefaultVehicleController();
+	const int vehicleId = 23;
+	var vehicle = new Vehicle
+	{
+		Id = 23,
+		ContactEmail = "maria@gmail.com",
+		ContactName = "Maria",
+		ContactPhone = "078970",
+		IsRegistered = false,
+		LastUpdate = DateTime.Today.Subtract(new TimeSpan(1, 0, 0, 0))
+	};
+	var vehicleDto = new VehicleDTO
+	{
+		Contact = new ContactDTO { Email = "maria@gmail.com", Name = "Maria", Phone = "078970" },
+		Id = 23,
+		IsRegistered = false,
+		LastUpdate = DateTime.Today.Subtract(new TimeSpan(1, 0, 0, 0))
+	};
+	_vehicleRepository.Setup(repo => repo.GetWithRelated(vehicleId)).Returns(Task.FromResult(vehicle));
+
+	// Act
+	var result = await vehicleController.Get(vehicleId);
+
+	// Assert
+	Assert.IsNotNull(result.Result);
+	Assert.IsInstanceOf<OkObjectResult>(result.Result);
+	Assert.AreEqual(vehicleDto.Id, ((result.Result as OkObjectResult).Value as VehicleDTO).Id);
+	Assert.AreEqual(vehicleDto.Contact.Email, ((result.Result as OkObjectResult).Value as VehicleDTO).Contact.Email);
+	Assert.AreEqual(vehicleDto.LastUpdate, ((result.Result as OkObjectResult).Value as VehicleDTO).LastUpdate);
+}
