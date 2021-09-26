@@ -17,8 +17,8 @@ namespace Vega.Tests
     public class VehicleControllerTest
     {
         private IMapper _mapper;
-        private Mock<IVehicleRepository> _vehicleRepository;
-        private Mock<IUnitOfWork> _unitOfWork;
+        private Mock<IVehicleRepository> _vehicleRepositoryStub;
+        private Mock<IUnitOfWork> _unitOfWorkStub;
 
         [Test]
         public void TestConstructor_ReturnsNotNull()
@@ -65,7 +65,7 @@ namespace Vega.Tests
                 IsRegistered = false,
                 LastUpdate = DateTime.Today.Subtract(new TimeSpan(1, 0, 0, 0))
             };
-            _vehicleRepository.Setup(repo => repo.GetWithRelated(vehicleId)).Returns(Task.FromResult(vehicle));
+            _vehicleRepositoryStub.Setup(repo => repo.GetWithRelated(vehicleId)).Returns(Task.FromResult(vehicle));
 
             // Act
             var result = await vehicleController.Get(vehicleId);
@@ -83,7 +83,7 @@ namespace Vega.Tests
         {
             // Arrange
             var vehicleController = CreateDefaultVehicleController();
-            _vehicleRepository.Setup(repo => repo.GetAll(It.IsAny<VehicleQuery>()))
+            _vehicleRepositoryStub.Setup(repo => repo.GetAll(It.IsAny<VehicleQuery>()))
                 .Returns(Task.FromResult(new QueryResult<Vehicle>()));
 
             // Act
@@ -117,7 +117,7 @@ namespace Vega.Tests
                 },
                 TotalItems = 2
             };
-            _vehicleRepository.Setup(repo => repo.GetAll(It.IsAny<VehicleQuery>())).Returns(Task.FromResult(vehicleQueryResult));
+            _vehicleRepositoryStub.Setup(repo => repo.GetAll(It.IsAny<VehicleQuery>())).Returns(Task.FromResult(vehicleQueryResult));
 
             // Act
             var result = await vehicleController.Get(null);
@@ -128,18 +128,69 @@ namespace Vega.Tests
             Assert.AreEqual("radu@gmail.com", result.Items.First().Contact.Email);
         }
 
+        [Test]
+        public async Task TestInsert_ReturnsBadRequest_WhenIdHasValue()
+        {
+            // Arrange
+            var vehicleController = CreateDefaultVehicleController();
+            var saveVehicleDto = new SaveVehicleDTO
+            {
+                Id = 11, Contact = new ContactDTO {Email = "radu@gmail.com", Name = "Radu", Phone = "0723"},
+                IsRegistered = true
+            };
+
+            // Act
+            var result = await vehicleController.Insert(saveVehicleDto);
+
+            // Assert
+            Assert.IsInstanceOf<BadRequestObjectResult>(result.Result);
+        }
+
+        [Test]
+        public async Task TestInsert_ReturnsVehicleDto_WhenNoId()
+        {
+            // Arrange
+            var vehicleController = CreateDefaultVehicleController();
+            var now = DateTime.Now;
+            const int generatedId = 11;
+            var saveVehicleDto = new SaveVehicleDTO
+            {
+                Contact = new ContactDTO {Email = "radu@gmail.com", Name = "Radu", Phone = "0723"},
+                IsRegistered = true
+            };
+            var vehicle = new Vehicle
+            {
+                Id = generatedId, ContactEmail = "radu@gmail.com", ContactName = "Radu", ContactPhone = "0723",
+                IsRegistered = true, LastUpdate = now
+            };
+
+            _unitOfWorkStub.Setup(uWork => uWork.Complete()).Returns(Task.FromResult(1));
+            _vehicleRepositoryStub.Setup(repo => repo.AddAsync(It.IsAny<Vehicle>())).Returns(Task.FromResult(vehicle));
+            _vehicleRepositoryStub.Setup(repo => repo.GetWithRelated(It.IsAny<long>())).Returns(Task.FromResult(vehicle));
+
+            // Act
+            var result = await vehicleController.Insert(saveVehicleDto);
+
+            // Assert
+            Assert.IsNotNull(result.Result);
+            Assert.IsInstanceOf<OkObjectResult>(result.Result);
+            Assert.AreEqual(generatedId, ((result.Result as OkObjectResult).Value as VehicleDTO).Id);
+            Assert.AreEqual(saveVehicleDto.Contact.Email, ((result.Result as OkObjectResult).Value as VehicleDTO).Contact.Email);
+            Assert.AreEqual(now, ((result.Result as OkObjectResult).Value as VehicleDTO).LastUpdate);
+        }
+
         private VehicleController CreateDefaultVehicleController()
         {
-            _vehicleRepository = new Mock<IVehicleRepository>();
-            _unitOfWork = new Mock<IUnitOfWork>();
+            _vehicleRepositoryStub = new Mock<IVehicleRepository>();
+            _unitOfWorkStub = new Mock<IUnitOfWork>();
 
-            var mockMapper = new MapperConfiguration(cfg =>
+            var mapperConfiguration = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile(new MappingProfile());
             });
-            _mapper = mockMapper.CreateMapper();
+            _mapper = mapperConfiguration.CreateMapper();
 
-            var vehicleController = new VehicleController(_mapper, _vehicleRepository.Object, _unitOfWork.Object);
+            var vehicleController = new VehicleController(_mapper, _vehicleRepositoryStub.Object, _unitOfWorkStub.Object);
 
             return vehicleController;
         }
