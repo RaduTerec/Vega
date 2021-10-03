@@ -80,11 +80,11 @@ namespace Vega.Tests
         }
 
         [Test]
-        public async Task TestGetAll_ReturnsZeroItems_WhenNoDataExists()
+        public async Task TestQueryAll_ReturnsZeroItems_WhenNoDataExists()
         {
             // Arrange
             var vehicleController = CreateDefaultVehicleController();
-            _vehicleRepositoryStub.Setup(repo => repo.GetAll(It.IsAny<VehicleQuery>()))
+            _vehicleRepositoryStub.Setup(repo => repo.QueryAll(It.IsAny<VehicleQuery>()))
                 .Returns(Task.FromResult(new QueryResult<Vehicle>()));
 
             // Act
@@ -97,7 +97,7 @@ namespace Vega.Tests
         }
 
         [Test]
-        public async Task TestGetAll_ReturnsAllItems_WhenQuery()
+        public async Task TestQueryAll_ReturnsAllItems_WhenQuery()
         {
             // Arrange
             var vehicleController = CreateDefaultVehicleController();
@@ -118,7 +118,7 @@ namespace Vega.Tests
                 },
                 TotalItems = 2
             };
-            _vehicleRepositoryStub.Setup(repo => repo.GetAll(It.IsAny<VehicleQuery>())).Returns(Task.FromResult(vehicleQueryResult));
+            _vehicleRepositoryStub.Setup(repo => repo.QueryAll(It.IsAny<VehicleQuery>())).Returns(Task.FromResult(vehicleQueryResult));
 
             // Act
             var result = await vehicleController.Get(null);

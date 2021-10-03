@@ -7,16 +7,16 @@ using Vega.Core.Repositories;
 
 namespace Vega.Persistence
 {
-    public class PhotoRepository : IPhotoRepository
+    public class PhotoRepository : Repository<Photo>, IPhotoRepository
     {
-        private readonly VegaDbContext _context;
-        public PhotoRepository(VegaDbContext context)
+        private readonly VegaDbContext _vegaDbContext;
+        public PhotoRepository(VegaDbContext vegaDbContext) : base(vegaDbContext)
         {
-            _context = context;
+            _vegaDbContext = vegaDbContext;
         }
         public async Task<IEnumerable<Photo>> GetPhotos(int vehicleId)
         {
-            return await _context.Photos.Where(p => p.VehicleId == vehicleId).ToListAsync();
+            return await _vegaDbContext.Photos.Where(p => p.VehicleId == vehicleId).ToListAsync();
         }
     }
 }

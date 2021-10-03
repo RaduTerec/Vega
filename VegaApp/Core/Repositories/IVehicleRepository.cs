@@ -3,13 +3,10 @@ using Vega.Core.Models;
 
 namespace Vega.Core.Repositories
 {
-    public interface IVehicleRepository
+    public interface IVehicleRepository : IRepository<Vehicle>
     {
-        public Task<Vehicle> Get(long id);
         public Task<Vehicle> GetWithRelated(long id);
         public Task<Vehicle> GetWithFeatures(long id);
-        public Task<QueryResult<Vehicle>> GetAll(VehicleQuery vehicleQuery);
-        public Task AddAsync(Vehicle vehicle);
-        public void Remove(Vehicle vehicle);
+        public Task<QueryResult<Vehicle>> QueryAll(VehicleQuery vehicleQuery);
     }
 }

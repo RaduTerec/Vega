@@ -10,11 +10,11 @@ using Vega.Core.Repositories;
 
 namespace Vega.Persistence
 {
-    public class VehicleRepository : IVehicleRepository
+    public class VehicleRepository : Repository<Vehicle>, IVehicleRepository
     {
         private readonly VegaDbContext _vegaDbContext;
 
-        public VehicleRepository(VegaDbContext vegaDbContext)
+        public VehicleRepository(VegaDbContext vegaDbContext) : base(vegaDbContext)
         {
             _vegaDbContext = vegaDbContext;
         }
@@ -49,21 +49,11 @@ namespace Vega.Persistence
         }
 
         /// <summary>
-        /// Get a vehicle based on <paramref name="id"/> from the context.
-        /// </summary>
-        /// <param name="id">if of the <see cref="Vehicle"/> to retrieve</param>
-        /// <returns><see cref="Vehicle"/> object</returns>
-        public async Task<Vehicle> Get(long id)
-        {
-            return await _vegaDbContext.Vehicles.FindAsync(id);
-        }
-
-        /// <summary>
         /// Gets an enumerable of vehicles
         /// </summary>
         /// <param name="vehicleQuery">Filtering and sorting query for vehicles</param>
         /// <returns><see cref="QueryResult{Vehicle}"/></returns>
-        public async Task<QueryResult<Vehicle>> GetAll(VehicleQuery vehicleQuery)
+        public async Task<QueryResult<Vehicle>> QueryAll(VehicleQuery vehicleQuery)
         {
             var result = new QueryResult<Vehicle>();
 
@@ -93,24 +83,6 @@ namespace Vega.Persistence
             result.Items = await query.ToListAsync();
 
             return result;
-        }
-
-        /// <summary>
-        /// Add a <paramref name="vehicle"/> to the context.
-        /// </summary>
-        /// <param name="vehicle"><see cref="Vehicle"/> to be added</param>
-        public async Task AddAsync(Vehicle vehicle)
-        {
-            await _vegaDbContext.Vehicles.AddAsync(vehicle);
-        }
-
-        /// <summary>
-        /// Removes a <paramref name="vehicle"/> from the context.
-        /// </summary>
-        /// <param name="vehicle"><see cref="Vehicle"/></param>
-        public void Remove(Vehicle vehicle)
-        {
-            _vegaDbContext.Vehicles.Remove(vehicle);
         }
     }
 }
