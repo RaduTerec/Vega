@@ -1,10 +1,9 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Vega.Controllers.DataTransferObjects;
-using Vega.Persistence;
+using Vega.Core;
 
 namespace Vega.Controllers
 {
@@ -12,19 +11,19 @@ namespace Vega.Controllers
     [Route("api/[controller]")]
     public class FeatureController : ControllerBase
     {
-        private readonly VegaDbContext _vegaDbContext;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public FeatureController(VegaDbContext context, IMapper mapper)
+        public FeatureController(IMapper mapper, IUnitOfWork unitOfWork)
         {
-            _vegaDbContext = context;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public async Task<IEnumerable<KeyValuePairDTO>> GetFeatures()
         {
-            var features = await _vegaDbContext.Features.ToListAsync();
+            var features = await _unitOfWork.Features.GetAll();
 
             return _mapper.Map<IEnumerable<KeyValuePairDTO>>(features);
         }
