@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Vega.Core;
+using Vega.Core.Repositories;
 
 namespace Vega.Persistence
 {
@@ -10,8 +11,13 @@ namespace Vega.Persistence
         public UnitOfWork(VegaDbContext vegaDbContext)
         {
             _vegaDbContext = vegaDbContext;
-
+            Vehicles = new VehicleRepository(_vegaDbContext);
+            Photos = new PhotoRepository(_vegaDbContext);
         }
+
+        public IVehicleRepository Vehicles { get; }
+        public IPhotoRepository Photos { get; }
+
         public async Task<int> Complete()
         {
             try

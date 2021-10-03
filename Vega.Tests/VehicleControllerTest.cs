@@ -271,6 +271,7 @@ namespace Vega.Tests
         {
             _vehicleRepositoryStub = new Mock<IVehicleRepository>();
             _unitOfWorkStub = new Mock<IUnitOfWork>();
+            _unitOfWorkStub.Setup(uWork => uWork.Vehicles).Returns(_vehicleRepositoryStub.Object);
 
             var mapperConfiguration = new MapperConfiguration(cfg =>
             {
@@ -278,7 +279,7 @@ namespace Vega.Tests
             });
             _mapper = mapperConfiguration.CreateMapper();
 
-            var vehicleController = new VehicleController(_mapper, _vehicleRepositoryStub.Object, _unitOfWorkStub.Object);
+            var vehicleController = new VehicleController(_mapper, _unitOfWorkStub.Object);
 
             return vehicleController;
         }

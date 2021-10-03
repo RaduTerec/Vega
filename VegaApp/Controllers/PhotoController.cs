@@ -10,7 +10,6 @@ using Microsoft.Extensions.Options;
 using Vega.Controllers.DataTransferObjects;
 using Vega.Core;
 using Vega.Core.Models;
-using Vega.Core.Repositories;
 
 namespace Vega.Controllers
 {
@@ -21,29 +20,23 @@ namespace Vega.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IMapper _mapper;
         private readonly PhotoSettings _photoSettings;
-        private readonly IVehicleRepository _vehicleRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IPhotoRepository _photoRepository;
 
         public PhotoController(IWebHostEnvironment webHostEnvironment,
                                 IMapper mapper,
                                 IOptionsSnapshot<PhotoSettings> options,
-                                IVehicleRepository vehicleRepository,
-                                IPhotoRepository photoRepository,
                                 IUnitOfWork unitOfWork)
         {
-            _photoRepository = photoRepository;
             _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
             _photoSettings = options.Value;
-            _vehicleRepository = vehicleRepository;
             _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public async Task<IEnumerable<PhotoDTO>> GetPhotos(int vehicleId)
         {
-            var photos = await _photoRepository.GetPhotos(vehicleId);
+            var photos = await _unitOfWork.Photos.GetPhotos(vehicleId);
 
             return _mapper.Map<IEnumerable<PhotoDTO>>(photos);
         }
@@ -51,7 +44,7 @@ namespace Vega.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(long vehicleId, IFormFile file)
         {
-            var vehicle = await _vehicleRepository.Get(vehicleId);
+            var vehicle = await _unitOfWork.Vehicles.Get(vehicleId);
 
             if (vehicle == default) return BadRequest($"Could not find vehicle with {vehicleId}.");
             if (file == null) return BadRequest("No file");
