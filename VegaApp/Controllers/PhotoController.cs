@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Vega.Controllers.DataTransferObjects;
 using Vega.Core;
 using Vega.Core.Models;
+using Vega.Core.Repositories;
 
 namespace Vega.Controllers
 {

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Vega.Controllers.DataTransferObjects;
 using Vega.Core;
 using Vega.Core.Models;
+using Vega.Core.Repositories;
 
 namespace Vega.Controllers
 {

@@ -5,8 +5,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using vega.Extensions;
-using Vega.Core;
 using Vega.Core.Models;
+using Vega.Core.Repositories;
 
 namespace Vega.Persistence
 {

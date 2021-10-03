@@ -12,6 +12,7 @@ using System;
 using System.Text;
 using Vega.Core;
 using Vega.Core.Models;
+using Vega.Core.Repositories;
 using Vega.Persistence;
 
 namespace Vega

@@ -1045,7 +1045,7 @@ public async Task TestGet_ReturnsVehicle_WhenIdExists()
 		IsRegistered = false,
 		LastUpdate = DateTime.Today.Subtract(new TimeSpan(1, 0, 0, 0))
 	};
-	_vehicleRepository.Setup(repo => repo.GetWithRelated(vehicleId)).Returns(Task.FromResult(vehicle));
+	_vehicleRepositoryStub.Setup(repo => repo.GetWithRelated(vehicleId)).Returns(Task.FromResult(vehicle));
 
 	// Act
 	var result = await vehicleController.Get(vehicleId);
@@ -1053,7 +1053,17 @@ public async Task TestGet_ReturnsVehicle_WhenIdExists()
 	// Assert
 	Assert.IsNotNull(result.Result);
 	Assert.IsInstanceOf<OkObjectResult>(result.Result);
-	Assert.AreEqual(vehicleDto.Id, ((result.Result as OkObjectResult).Value as VehicleDTO).Id);
-	Assert.AreEqual(vehicleDto.Contact.Email, ((result.Result as OkObjectResult).Value as VehicleDTO).Contact.Email);
-	Assert.AreEqual(vehicleDto.LastUpdate, ((result.Result as OkObjectResult).Value as VehicleDTO).LastUpdate);
+	Assert.AreEqual(vehicleDto.Id, ((VehicleDTO)((OkObjectResult)result.Result).Value).Id);
+	Assert.AreEqual(vehicleDto.Contact.Email, ((VehicleDTO)((OkObjectResult)result.Result).Value).Contact.Email);
+	Assert.AreEqual(vehicleDto.LastUpdate, ((VehicleDTO)((OkObjectResult)result.Result).Value).LastUpdate);
 }
+
+Notes
+	a. Consider:
+		string s = (string)o;
+		string s = o as string;
+	   In the first case, the static cast will throw InvalidCastException if 'o' is not a string. Otherwise, assigns 'o' to 's', even if 'o' is null.
+	   In the second as operator assigns 'null' to 's' if
+			- 'o' is not a string or 
+			- 'o' is 'null'.
+	   For this reason, you cannot use it with value types (the operator could never return null in that case). Otherwise, assigns o to s.

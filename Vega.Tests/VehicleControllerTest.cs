@@ -10,6 +10,7 @@ using Vega.Controllers;
 using Vega.Controllers.DataTransferObjects;
 using Vega.Core;
 using Vega.Core.Models;
+using Vega.Core.Repositories;
 using Vega.Mappings;
 
 namespace Vega.Tests
