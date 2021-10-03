@@ -73,9 +73,9 @@ namespace Vega.Tests
             // Assert
             Assert.IsNotNull(result.Result);
             Assert.IsInstanceOf<OkObjectResult>(result.Result);
-            Assert.AreEqual(vehicleDto.Id, ((result.Result as OkObjectResult).Value as VehicleDTO).Id);
-            Assert.AreEqual(vehicleDto.Contact.Email, ((result.Result as OkObjectResult).Value as VehicleDTO).Contact.Email);
-            Assert.AreEqual(vehicleDto.LastUpdate, ((result.Result as OkObjectResult).Value as VehicleDTO).LastUpdate);
+            Assert.AreEqual(vehicleDto.Id, ((VehicleDTO)((OkObjectResult)result.Result).Value).Id);
+            Assert.AreEqual(vehicleDto.Contact.Email, ((VehicleDTO)((OkObjectResult)result.Result).Value).Contact.Email);
+            Assert.AreEqual(vehicleDto.LastUpdate, ((VehicleDTO)((OkObjectResult)result.Result).Value).LastUpdate);
         }
 
         [Test]
@@ -174,9 +174,96 @@ namespace Vega.Tests
             // Assert
             Assert.IsNotNull(result.Result);
             Assert.IsInstanceOf<OkObjectResult>(result.Result);
-            Assert.AreEqual(generatedId, ((result.Result as OkObjectResult).Value as VehicleDTO).Id);
-            Assert.AreEqual(saveVehicleDto.Contact.Email, ((result.Result as OkObjectResult).Value as VehicleDTO).Contact.Email);
-            Assert.AreEqual(now, ((result.Result as OkObjectResult).Value as VehicleDTO).LastUpdate);
+            Assert.AreEqual(generatedId, ((VehicleDTO)((OkObjectResult)result.Result).Value).Id);
+            Assert.AreEqual(saveVehicleDto.Contact.Email, ((VehicleDTO)((OkObjectResult)result.Result).Value).Contact.Email);
+            Assert.AreEqual(now, ((VehicleDTO)((OkObjectResult)result.Result).Value).LastUpdate);
+        }
+
+        [Test]
+        public async Task TestUpdate_ReturnsBadRequest_WhenIdDoesNotExist()
+        {
+            // Arrange
+            var vehicleController = CreateDefaultVehicleController();
+            var saveVehicleDto = new SaveVehicleDTO
+            {
+                Contact = new ContactDTO {Email = "radu@gmail.com", Name = "Radu", Phone = "0723"},
+                IsRegistered = true
+            };
+
+            // Act
+            var result = await vehicleController.Update(12, saveVehicleDto);
+
+            // Assert
+            Assert.IsInstanceOf<BadRequestObjectResult>(result.Result);
+        }
+
+        [Test]
+        public async Task TestUpdate_ReturnsVehicleDto_WhenIdExists()
+        {
+            // Arrange
+            var vehicleController = CreateDefaultVehicleController();
+            var now = DateTime.Now;
+            const int generatedId = 12;
+            var saveVehicleDto = new SaveVehicleDTO
+            {
+                Contact = new ContactDTO {Email = "maria@gmail.com", Name = "Maria", Phone = "074118"},
+                IsRegistered = true
+            };
+            var vehicle = new Vehicle
+            {
+                Id = generatedId, ContactEmail = "maria@gmail.com", ContactName = "Maria", ContactPhone = "074118",
+                IsRegistered = true, LastUpdate = now
+            };
+            _unitOfWorkStub.Setup(uWork => uWork.Complete()).Returns(Task.FromResult(1));
+            _vehicleRepositoryStub.Setup(repo => repo.GetWithFeatures(It.IsAny<long>())).Returns(Task.FromResult(vehicle));
+            _vehicleRepositoryStub.Setup(repo => repo.GetWithRelated(It.IsAny<long>())).Returns(Task.FromResult(vehicle));
+
+            // Act
+            var result = await vehicleController.Update(generatedId, saveVehicleDto);
+
+            // Assert
+            Assert.IsNotNull(result.Result);
+            Assert.IsInstanceOf<OkObjectResult>(result.Result);
+            Assert.AreEqual(generatedId, ((VehicleDTO)((OkObjectResult)result.Result).Value).Id);
+            Assert.AreEqual(saveVehicleDto.Contact.Email, ((VehicleDTO)((OkObjectResult)result.Result).Value).Contact.Email);
+            Assert.AreNotEqual(now, ((VehicleDTO)((OkObjectResult)result.Result).Value).LastUpdate);
+        }
+
+        [Test]
+        public async Task TestDelete_ReturnsBadRequest_WhenIdDoesNotExist()
+        {
+            // Arrange
+            var vehicleController = CreateDefaultVehicleController();
+
+            // Act
+            var result = await vehicleController.Delete(17);
+
+            // Assert
+            Assert.IsInstanceOf<BadRequestObjectResult>(result.Result);
+        }
+
+        [Test]
+        public async Task TestDelete_ReturnsDeletedId_WhenIdExists()
+        {
+            // Arrange
+            var vehicleController = CreateDefaultVehicleController();
+            const int generatedId = 17;
+            var vehicle = new Vehicle
+            {
+                Id = generatedId, ContactEmail = "laura@gmail.com", ContactName = "Laura", ContactPhone = "0735",
+                IsRegistered = false, LastUpdate = DateTime.Now
+            };
+
+            _unitOfWorkStub.Setup(uWork => uWork.Complete()).Returns(Task.FromResult(1));
+            _vehicleRepositoryStub.Setup(repo => repo.Get(It.IsAny<long>())).Returns(Task.FromResult(vehicle));
+
+            // Act
+            var result = await vehicleController.Delete(generatedId);
+
+            // Assert
+            Assert.IsNotNull(result.Result);
+            Assert.IsInstanceOf<OkObjectResult>(result.Result);
+            Assert.AreEqual(generatedId, (long)((OkObjectResult)result.Result).Value);
         }
 
         private VehicleController CreateDefaultVehicleController()
