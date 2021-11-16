@@ -11,12 +11,21 @@
           <li class="nav-item" [routerLinkActive]="['link-active']" [routerLinkActiveOptions]="{ exact: true }">
             <a class="nav-link text-dark" [routerLink]="['/']">Home</a>
           </li>
-          <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/vehicles/new']">New vehicle</a>
-          </li>
-          <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/user']">Login / Register</a>
-          </li>
+          <ng-container *ngIf="role==='admin'">
+            <li class="nav-item" [routerLinkActive]="['link-active']">
+              <a class="nav-link text-dark" [routerLink]="['/vehicles/new']">New vehicle</a>
+            </li>
+          </ng-container>
+          <ng-container *ngIf="isLoggedIn">
+            <li class="nav-item" [routerLinkActive]="['link-active']">
+              <a class="nav-link text-dark" href="logout()">Logout</a>
+            </li>
+          </ng-container>
+          <ng-container *ngIf="!isLoggedIn">
+            <li class="nav-item" [routerLinkActive]="['link-active']">
+              <a class="nav-link text-dark" [routerLink]="['/user']">Login / Register</a>
+            </li>
+          </ng-container>
         </ul>
       </div>
     </div>

@@ -30,6 +30,7 @@ export class UserComponent implements OnInit {
     var result = this.authService.login(this.loginData);
     result.subscribe(loginResponse => {
         localStorage.setItem('token', loginResponse.token);
+        localStorage.setItem('role', loginResponse.roles[0].toLowerCase());
         this.router.navigate(["/"]);
     }, err => {
         this.toastrService.error("Login failed. Please try again", "Login", {
