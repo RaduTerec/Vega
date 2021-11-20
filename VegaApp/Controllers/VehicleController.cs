@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -44,6 +45,7 @@ namespace Vega.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<VehicleDTO>> Insert(SaveVehicleDTO vehicleDTO)
         {
             if (vehicleDTO.Id != 0)
@@ -62,6 +64,7 @@ namespace Vega.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Moderator, Admin")]
         public async Task<ActionResult<VehicleDTO>> Update(long id, SaveVehicleDTO vehicleDTO)
         {
             var vehicle = await _unitOfWork.Vehicles.GetWithFeatures(id);
@@ -80,6 +83,7 @@ namespace Vega.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<long>> Delete(long id)
         {
             var vehicle = await _unitOfWork.Vehicles.Get(id);
