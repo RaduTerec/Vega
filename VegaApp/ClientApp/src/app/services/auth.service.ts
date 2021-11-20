@@ -15,7 +15,10 @@ export class AuthenticationService {
     constructor(private http: HttpClient) { }
 
     register(userData: User) {
-        return this.http.post(this.userEndpoint, userData);
+        var response = this.http.post(this.userEndpoint, userData) as Observable<AuthResponse>;
+        this.SaveTokenInLocalStorage(response);
+
+        return response;
     }
 
     login(loginData: Login): Observable<AuthResponse> {
@@ -52,8 +55,8 @@ export class AuthenticationService {
 
     private SaveTokenInLocalStorage(response: Observable<AuthResponse>) {
         response.subscribe({
-            next: loginResponse => {
-                localStorage.setItem(this.tokenName, loginResponse.token);
+            next: authResponse => {
+                localStorage.setItem(this.tokenName, authResponse.token);
             },
             error: error => {
                 throw error;

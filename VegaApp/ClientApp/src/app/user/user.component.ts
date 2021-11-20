@@ -23,16 +23,23 @@ export class UserComponent implements OnInit {
 
   register() {
     var result = this.authService.register(this.userData);
-    console.log(result);
+    this.handleAuthResponse(result, "Register");
   }
 
   login() {
     var result = this.authService.login(this.loginData);
+    this.handleAuthResponse(result, "Login");
+  }
 
-    result.subscribe(success => {
+  private handleAuthResponse(result, dialogName: string) {
+    result.subscribe(() => {
       this.router.navigate(["/"]);
-    }, err => {
-      this.toastrService.error("Login failed. Please try again", "Login", {
+    }, error => {
+      if (!error.error) {
+        error.error = dialogName + "failed";
+      }
+
+      this.toastrService.error(error.error + " Please try again.", dialogName, {
         timeOut: 5000
       });
     });
