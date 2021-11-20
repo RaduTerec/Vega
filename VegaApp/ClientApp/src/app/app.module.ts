@@ -13,6 +13,8 @@ import { AppErrorHandler } from './app.error-handler';
 import { VehicleService } from './services/vehicle.service';
 import { PhotoService } from './services/photo.service';
 import { AuthenticationService } from './services/auth.service';
+import { EditVehicleGuard } from './services/editVehicle-guards.service';
+import { NewVehicleGuard } from './services/newVehicle-guard.service';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { PaginationComponent } from './shared/pagination.component';
@@ -41,8 +43,8 @@ Raven.config('https://0d358e8171024842ad5bfae86bd34a44@o862752.ingest.sentry.io/
     ToastrModule.forRoot(),
     RouterModule.forRoot([
       { path: '', component: VehicleListComponent, pathMatch: 'full' },
-      { path: 'vehicles/new', component: VehicleFormComponent },
-      { path: 'vehicles/edit/:id', component: VehicleFormComponent },
+      { path: 'vehicles/new', component: VehicleFormComponent, canActivate: [NewVehicleGuard] },
+      { path: 'vehicles/edit/:id', component: VehicleFormComponent, canActivate: [EditVehicleGuard] },
       { path: 'vehicles/:id', component: ViewVehicleComponent },
       { path: 'user', component: UserComponent},
     ]),
@@ -50,9 +52,11 @@ Raven.config('https://0d358e8171024842ad5bfae86bd34a44@o862752.ingest.sentry.io/
   ],
   providers: [
     { provide: ErrorHandler, useClass: AppErrorHandler },
-    VehicleService,
+    VehicleService,    
     PhotoService,
     AuthenticationService,
+    EditVehicleGuard,
+    NewVehicleGuard,
   ],
   bootstrap: [AppComponent]
 })
