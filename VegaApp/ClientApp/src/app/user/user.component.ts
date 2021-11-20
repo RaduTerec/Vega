@@ -11,12 +11,12 @@ import { Router } from '@angular/router';
   styleUrls: ['./user.component.css']
 })
 export class UserComponent implements OnInit {
-  userData: User = {name: "", username: "", email: "", password: ""};
-  loginData: Login = { email: "", password: ""};
+  userData: User = { name: "", username: "", email: "", password: "" };
+  loginData: Login = { email: "", password: "" };
 
   constructor(private router: Router,
-              private authService: AuthenticationService,
-              private toastrService: ToastrService) { }
+    private authService: AuthenticationService,
+    private toastrService: ToastrService) { }
 
   ngOnInit() {
   }
@@ -28,12 +28,11 @@ export class UserComponent implements OnInit {
 
   login() {
     var result = this.authService.login(this.loginData);
-    result.subscribe(loginResponse => {
-        localStorage.setItem('token', loginResponse.token);
-        localStorage.setItem('role', loginResponse.roles[0].toLowerCase());
-        this.router.navigate(["/"]);
+
+    result.subscribe(success => {
+      this.router.navigate(["/"]);
     }, err => {
-        this.toastrService.error("Login failed. Please try again", "Login", {
+      this.toastrService.error("Login failed. Please try again", "Login", {
         timeOut: 5000
       });
     });

@@ -305,6 +305,7 @@ Follow these steps:
 	
 Note
 !!!	* To be able to view child objects, use `include` in query.
+!!!	* In order for `IActionResult` to return a JSON string, you have to use objects, not simple types.
 	
 Read more about routing here: https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-5.0
 	
@@ -1007,6 +1008,11 @@ g) Write the client side:
 	* integrate userController and service in app.module.ts and path.
 See: https://mdbootstrap.com/docs/standard/extended/login/#!
 
+h) User management
+When working with users, you can assign rolses using:
+	* manual allocation (works ok for a small number of users)
+	* rules (if the email address ends with @vega -> he's an employee)
+	* User Management API
 
 ==================================================================
 Unit tests

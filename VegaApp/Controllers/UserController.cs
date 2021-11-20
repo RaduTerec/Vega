@@ -42,18 +42,25 @@ namespace Vega.Controllers
             }
 
             var result = await _userManager.CreateAsync(user, userDto.Password);
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
-                await _userManager.AddToRoleAsync(user, DefaultRole);
+                return BadRequest("Something went wrong");
             }
 
-            return Ok(userDto);
+            await _userManager.AddToRoleAsync(user, DefaultRole);
+
+            var jwtSecurityToken = await CreateJwtToken(user);
+            var authResponse = new AuthenticationResponseDTO
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken)
+            };
+
+            return Ok(authResponse);
         }
 
         [HttpPut]
         public async Task<IActionResult> Login(LoginDTO login)
         {
-            var authenticationResponse = new AuthenticationResponseDTO();
             var user = await _userManager.FindByEmailAsync(login.Email);
             if (user == null)
             {
@@ -63,42 +70,39 @@ namespace Vega.Controllers
             if (await _userManager.CheckPasswordAsync(user, login.Password))
             {
                 var jwtSecurityToken = await CreateJwtToken(user);
-                authenticationResponse.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-                authenticationResponse.Email = user.Email;
-                authenticationResponse.UserName = user.UserName;
+                var authResponse = new AuthenticationResponseDTO
+                {
+                    Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken)
+                };
 
-                var rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
-                authenticationResponse.Roles = rolesList.ToList();
-                return Ok(authenticationResponse);
-            }            
-            
+                return Ok(authResponse);
+            }
+
             return BadRequest($"Could not authenticate {login.Email}");
         }
 
         private async Task<JwtSecurityToken> CreateJwtToken(VegaUser user)
         {
             var userClaims = await _userManager.GetClaimsAsync(user);
-            
+
             var roles = await _userManager.GetRolesAsync(user);
             var roleClaims = new List<Claim>();
             for (int i = 0; i < roles.Count; i++)
             {
                 roleClaims.Add(new Claim("roles", roles[i]));
             }
-            
+
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim("uid", user.Id)
+                new Claim(JwtRegisteredClaimNames.Email, user.Email)
             }
             .Union(userClaims)
             .Union(roleClaims);
-            
+
             var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
             var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
-            
+
             var jwtSecurityToken = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,

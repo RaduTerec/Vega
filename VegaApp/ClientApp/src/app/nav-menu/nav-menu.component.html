@@ -11,21 +11,17 @@
           <li class="nav-item" [routerLinkActive]="['link-active']" [routerLinkActiveOptions]="{ exact: true }">
             <a class="nav-link text-dark" [routerLink]="['/']">Home</a>
           </li>
-          <ng-container *ngIf="role==='admin'">
-            <li class="nav-item" [routerLinkActive]="['link-active']">
-              <a class="nav-link text-dark" [routerLink]="['/vehicles/new']">New vehicle</a>
-            </li>
-          </ng-container>
-          <ng-container *ngIf="isLoggedIn">
-            <li class="nav-item" [routerLinkActive]="['link-active']">
-              <a class="nav-link text-dark" href="logout()">Logout</a>
-            </li>
-          </ng-container>
-          <ng-container *ngIf="!isLoggedIn">
-            <li class="nav-item" [routerLinkActive]="['link-active']">
-              <a class="nav-link text-dark" [routerLink]="['/user']">Login / Register</a>
-            </li>
-          </ng-container>
+          <li class="nav-item" *ngIf="auth.isInRole('Admin')" [routerLinkActive]="['link-active']">
+            <a class="nav-link text-dark" [routerLink]="['/vehicles/new']">New vehicle</a>
+          </li>
+          <li [routerLinkActive]="['link-active']">
+            <a class="nav-link text-dark" *ngIf="!auth.authenticated()" [routerLink]="['/user']">
+              <span class='glyphicon glyphicon-user'></span> Login
+            </a>
+            <a class="nav-link text-dark" (click)="auth.logout()" *ngIf="auth.authenticated()">
+              <span class='glyphicon glyphicon-user'></span> Logout
+            </a>
+          </li>
         </ul>
       </div>
     </div>

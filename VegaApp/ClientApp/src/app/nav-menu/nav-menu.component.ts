@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthenticationService } from '../services/auth.service';
 
 @Component({
   selector: 'app-nav-menu',
@@ -7,13 +8,8 @@ import { Component } from '@angular/core';
 })
 export class NavMenuComponent {
   isExpanded = false;
-  isLoggedIn: boolean;
-  role: string;
 
-  ngOnInit() {
-    this.role = this.readLocalStorageValue('role');
-    this.isLoggedIn = this.readLocalStorageValue('token') != null;
-  }
+  constructor(private auth: AuthenticationService) { }
 
   collapse() {
     this.isExpanded = false;
@@ -21,14 +17,5 @@ export class NavMenuComponent {
 
   toggle() {
     this.isExpanded = !this.isExpanded;
-  }
-
-  logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-  }
-
-  readLocalStorageValue(key) {
-    return localStorage.getItem(key);
   }
 }
