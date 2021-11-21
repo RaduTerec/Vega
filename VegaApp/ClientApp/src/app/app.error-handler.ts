@@ -1,4 +1,3 @@
-import * as Raven from 'raven-js';
 import { ToastrService } from "ngx-toastr";
 import { ErrorHandler, Inject, NgZone, isDevMode } from "@angular/core";
 

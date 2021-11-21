@@ -2,15 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { User } from './../models/user';
 import { Login } from '../models/login';
-import jwtDecode from 'jwt-decode';
 import { AuthResponse } from '../models/authResponse';
 import { Observable } from 'rxjs';
+import { JwtHelperService } from "@auth0/angular-jwt";
 
 @Injectable()
 
 export class AuthenticationService {
     private readonly userEndpoint = 'api/user';
     private readonly tokenName = 'token';
+    private jwtService = new JwtHelperService();
 
     constructor(private http: HttpClient) { }
 
@@ -34,8 +35,7 @@ export class AuthenticationService {
             return false;
         }
 
-        var decoded = jwtDecode(token);
-        return decoded['exp'] < Date.now();
+        return !this.jwtService.isTokenExpired(token);
     }
 
     public logout() {
@@ -48,7 +48,7 @@ export class AuthenticationService {
             return false;
         }
 
-        var decoded = jwtDecode(token);
+        var decoded = this.jwtService.decodeToken(token);
         var roles = decoded['roles'];
         return roles.indexOf(roleName) > -1;
     }
