@@ -58,16 +58,11 @@ namespace Vega.Persistence
             var result = new QueryResult<Vehicle>();
 
             var query = _vegaDbContext.Vehicles
-                .Include(v => v.Features)
-                    .ThenInclude(vf => vf.Feature)
                 .Include(v => v.Model)
                     .ThenInclude(m => m.Make)
                 .AsQueryable();
 
-            if (vehicleQuery.MakeId.HasValue)
-            {
-                query = query.Where(v => v.Model.MakeId == vehicleQuery.MakeId);
-            }
+            query = query.ApplyFiltering(vehicleQuery);
 
             var columnsMap = new Dictionary<string, Expression<Func<Vehicle, object>>>()
             {
@@ -75,7 +70,6 @@ namespace Vega.Persistence
                 ["model"] = v => v.Model.Name,
                 ["contactName"] = v => v.ContactName
             };
-
             query = query.ApplyOrdering(vehicleQuery, columnsMap);
             result.TotalItems = await query.CountAsync();
 
