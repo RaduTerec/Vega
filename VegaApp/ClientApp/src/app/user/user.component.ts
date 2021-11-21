@@ -1,6 +1,6 @@
 import { Login } from './../models/login';
 import { User } from './../models/user';
-import { AuthenticationService } from './../services/auth.service';
+import { AuthService } from './../services/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
@@ -15,7 +15,7 @@ export class UserComponent implements OnInit {
   loginData: Login = { email: "", password: "" };
 
   constructor(private router: Router,
-    private authService: AuthenticationService,
+    private authService: AuthService,
     private toastrService: ToastrService) { }
 
   ngOnInit() {

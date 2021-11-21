@@ -8,7 +8,7 @@ import { JwtHelperService } from "@auth0/angular-jwt";
 
 @Injectable()
 
-export class AuthenticationService {
+export class AuthService {
     private readonly userEndpoint = 'api/user';
     private readonly tokenName = 'token';
     private jwtService = new JwtHelperService();

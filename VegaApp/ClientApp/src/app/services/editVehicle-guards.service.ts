@@ -1,4 +1,4 @@
-import { AuthenticationService } from './auth.service';
+import { AuthService } from './auth.service';
 import { Injectable } from '@angular/core';
 import { CanActivate } from "@angular/router";
 import { Router } from '@angular/router';
@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 export class EditVehicleGuard implements CanActivate {
 
     constructor(private router: Router,
-        private auth: AuthenticationService) { }
+        private auth: AuthService) { }
 
     canActivate() {
         if (this.auth.authenticated() && 

@@ -5,7 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { PhotoService } from '../services/photo.service';
 import { VehicleService } from '../services/vehicle.service';
-import { AuthenticationService } from '../services/auth.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-view-vehicle',
@@ -28,7 +28,7 @@ export class ViewVehicleComponent implements OnInit {
     private toastrService: ToastrService,
     private vehicleService: VehicleService,
     private photoService: PhotoService,
-    private authService: AuthenticationService) {
+    private authService: AuthService) {
     route.params.subscribe(p => {
       this.vehicleId = +p['id'];
       if (isNaN(this.vehicleId) || this.vehicleId <= 0) {

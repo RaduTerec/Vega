@@ -12,7 +12,7 @@ import { JwtModule } from "@auth0/angular-jwt";
 import { AppErrorHandler } from './app.error-handler';
 import { VehicleService } from './services/vehicle.service';
 import { PhotoService } from './services/photo.service';
-import { AuthenticationService } from './services/auth.service';
+import { AuthService } from './services/auth.service';
 import { EditVehicleGuard } from './services/editVehicle-guards.service';
 import { NewVehicleGuard } from './services/newVehicle-guard.service';
 import { AppComponent } from './app.component';
@@ -61,7 +61,7 @@ export function tokenGetter() {
     { provide: ErrorHandler, useClass: AppErrorHandler },
     VehicleService,    
     PhotoService,
-    AuthenticationService,
+    AuthService,
     EditVehicleGuard,
     NewVehicleGuard,
   ],
