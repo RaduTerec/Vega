@@ -14,6 +14,7 @@ using Vega.Core;
 using Vega.Core.Models;
 using Vega.Core.Repositories;
 using Vega.Persistence;
+using VegaApp.Core;
 
 namespace Vega
 {
@@ -37,6 +38,7 @@ namespace Vega
             services.AddScoped<IVehicleRepository, VehicleRepository>();
             services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IPhotoService, PhotoService>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

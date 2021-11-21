@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Vega.Controllers.DataTransferObjects;
 using Vega.Core;
 using Vega.Core.Models;
+using VegaApp.Core;
 
 namespace Vega.Controllers
 {
@@ -22,16 +23,19 @@ namespace Vega.Controllers
         private readonly IMapper _mapper;
         private readonly PhotoSettings _photoSettings;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPhotoService _photoService;
 
         public PhotoController(IWebHostEnvironment webHostEnvironment,
                                 IMapper mapper,
                                 IOptionsSnapshot<PhotoSettings> options,
-                                IUnitOfWork unitOfWork)
+                                IUnitOfWork unitOfWork,
+                                IPhotoService photoService)
         {
             _webHostEnvironment = webHostEnvironment;
             _mapper = mapper;
             _photoSettings = options.Value;
             _unitOfWork = unitOfWork;
+            _photoService = photoService;
         }
 
         [HttpGet]
@@ -54,22 +58,8 @@ namespace Vega.Controllers
             if (file.Length > _photoSettings.MaxBytes) return BadRequest("Max file size exceeded");
             if (!_photoSettings.IsSupported(file.FileName)) return BadRequest("Invalid file type.");
 
-            var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
-            if (!Directory.Exists(uploadPath))
-            {
-                Directory.CreateDirectory(uploadPath);
-            }
-
-            var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
-            var filePath = Path.Combine(uploadPath, fileName);
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                file.CopyTo(fileStream);
-            }
-
-            var photo = new Photo { FileName = fileName };
-            vehicle.Photos.Add(photo);
-            await _unitOfWork.Complete();
+            var uploadDirectory = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
+            var photo = await _photoService.UploadPhoto(vehicle, file, uploadDirectory);
 
             return Ok(_mapper.Map<PhotoDTO>(photo));
         }
