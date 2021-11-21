@@ -1073,3 +1073,17 @@ Notes
 			- 'o' is not a string or 
 			- 'o' is 'null'.
 	   For this reason, you cannot use it with value types (the operator could never return null in that case). Otherwise, assigns o to s.
+	   
+==================================================================
+User Secrets
+
+.NET Core allows the user to store the connection string outside of the code repository. This is useful for development.
+See more details about user secret manager here: https://docs.microsoft.com/en-us/aspnet/core/security/app-secrets?view=aspnetcore-5.0&tabs=windows
+
+To use the manager, follow these steps:
+	a. dotnet user-secrets init
+	b. open your cs.proj and modify the user secret GUID to something readable, ex "vega-project".
+	c. Add your ConnectionString to the User Secret Manager:
+		dotnet user-secrets set "ConnectionStrings:VegaConnectionString" "server=localhost; port=3306; database=vega; user=sa; password=MyComplexPassword!234"
+	d. The user secrets configuration source is automatically added in Development mode when the project calls CreateDefaultBuilder
+	e. Remove the connection string from `appsetings.json`
