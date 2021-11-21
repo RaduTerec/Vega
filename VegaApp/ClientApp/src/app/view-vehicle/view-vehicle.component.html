@@ -21,8 +21,9 @@
       </ul>
       <br />
       <p>
-        <a class="btn btn-primary" [routerLink]="['/vehicles/edit/', vehicle.id]">Edit</a>
-        <button class="btn btn-danger" (click)="delete()">Delete</button>
+        <a *ngIf="authService.isInRole('Moderator') || authService.isInRole('Admin')" class="btn btn-primary"
+          [routerLink]="['/vehicles/edit/', vehicle.id]">Edit</a>
+        <button *ngIf="authService.isInRole('Admin')" class="btn btn-danger" (click)="delete()">Delete</button>
         <a class="btn btn-default" [routerLink]="['/']">View All Vehicles</a>
       </p>
     </ng-template>
@@ -31,7 +32,7 @@
     <a ngbNavLink>Photos</a>
     <ng-template ngbNavContent *ngIf="vehicle">
       <h2>Photos</h2>
-      <input type="file" (change)="uploadPhoto()" #fileInput>
+      <input *ngIf="authService.isInRole('Admin')" type="file" (change)="uploadPhoto()" #fileInput>
       <div *ngIf="uploadProgress && uploadProgress < 100">
         <div class="progress">
           <div class="progress-bar" [style.width]="uploadProgress + '%'">

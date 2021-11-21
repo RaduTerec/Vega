@@ -1,6 +1,7 @@
 import { KeyValuePair } from './../models/key-value-pair';
 import { Component, OnInit } from '@angular/core';
 import { VehicleService } from '../services/vehicle.service';
+import { AuthenticationService } from './../services/auth.service';
 
 @Component({
   selector: 'app-vehicle-list',
@@ -19,21 +20,22 @@ export class VehicleListComponent implements OnInit {
     { title: 'Make', key: 'make', isSortable: true },
     { title: 'Model', key: 'model', isSortable: true },
     { title: 'Contact Name', key: 'contactName', isSortable: true },
-    { }
+    {}
   ];
-  
-  constructor(private vehicleService: VehicleService) { }
+
+  constructor(private vehicleService: VehicleService,
+    private authService: AuthenticationService) { }
 
   ngOnInit() {
     this.vehicleService.getMakes()
-    .subscribe(makes => this.makes = makes);
+      .subscribe(makes => this.makes = makes);
 
     this.getFilteredVehicles();
   }
 
   getFilteredVehicles() {
     this.vehicleService.getVehicles(this.query)
-    .subscribe(result => this.queryResult = result);
+      .subscribe(result => this.queryResult = result);
   }
 
   onFilterChange() {
@@ -62,7 +64,7 @@ export class VehicleListComponent implements OnInit {
   }
 
   onPageChange(page) {
-    this.query.page = page; 
+    this.query.page = page;
     this.getFilteredVehicles();
   }
 }
